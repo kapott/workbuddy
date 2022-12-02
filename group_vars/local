@@ -1,0 +1,27 @@
+# vi: set ft=yaml :
+
+# NOTE: The below 2 variables should not need to be changed if you cloned
+#   the dotfiles repo to '~/dotfiles'
+#  Local home directory
+dotfiles_user_home: "{{ '~/.config' | expanduser }}"
+# Where your dotfiles live. Probably don't need to change this.
+dotfiles_home: "{{dotfiles_user_home}}/dotfiles"
+
+# Name used in commit messages
+full_name: Tom Herder
+# Git
+# Github username
+git_user: kapott
+# If you use github, this should be the same as the email
+#  used on Github
+git_email: kapott@aivd.33mail.com
+
+# GPG Key ID used to sign git commits
+# See https://github.com/pstadler/keybase-gpg-github setup instructions
+git_signing_key: "{{ lookup('env','GIT_SIGNING_KEY_ID') }}"
+
+# Vim
+
+# Whether to install plugins automatically. If not, just run
+# :PlugInstall while in vim.
+vim_install_plugins: yes
