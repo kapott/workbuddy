@@ -1,0 +1,28 @@
+---
+- import_tasks: debian.yml
+  when: ansible_os_family == "Debian"
+- import_tasks: redhat.yml
+  when: ansible_os_family == "Redhat"
+- import_tasks: mac.yml
+  when: ansible_os_family == "Darwin"
+
+- name: Check if vimrc exists
+  stat: path="{{dotfiles_user_home}}/.vimrc"
+  register: vimrc_stat
+  failed_when: False
+
+- name: Backup vimrc
+  command: mv ~/.vimrc ~/.vimrc.bak
+  args:
+    creates: "{{dotfiles_user_home}}/.vimrc.bak"
+  when: vimrc_stat.stat.exists
+
+- name: Symlink vimrc
+  file:
+    src: "{{ dotfiles_home }}/roles/vim/files/vimrc"
+    dest: "{{dotfiles_user_home}}/.vimrc"
+    state: link
+
+- name: Install plugins
+  command: vim +PlugInstall +qall
+  when: vim_install_plugins|bool
