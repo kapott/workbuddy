@@ -1,0 +1,4 @@
+---
+- name: Install ripgrep.
+  yum: name=ripgrep state=present
+  become_method: sudo
