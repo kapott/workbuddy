@@ -1,0 +1,5 @@
+---
+- name: Install FZF, the fuzzy file finder.
+  apt: name=fzf state=present
+  become_method: sudo
+
