@@ -1,4 +1,4 @@
 ---
 - name: Install FZF, the fuzzy file finder.
   yum: name=fzf state=present
-  become_method: sudo
+  become: yes
