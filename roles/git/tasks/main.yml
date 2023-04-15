@@ -1,0 +1,11 @@
+---
+- name: Print OS
+  debug:
+    var: ansible_os_family
+
+- import_tasks: debian.yml
+  when: ansible_os_family == "Debian"
+- import_tasks: redhat.yml
+  when: ansible_os_family == "RedHat"
+#- import_tasks: mac.yml
+#  when: ansible_os_family == "Darwin"
