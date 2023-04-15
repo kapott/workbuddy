@@ -1,0 +1,59 @@
+[user]
+	name = kapott
+	email = kapott@aivd.33mail.com
+
+[push]
+	default = simple
+
+[core]
+	editor = vim
+	whitespace = fix, -indent-with-non-tab,trailing-space,cr-at-eol
+
+[color]
+	ui = true
+
+[color "branch"]
+	current = yellow reverse
+	local = yellow
+	remote = green
+
+[color "diff"]
+	meta = yellow bold
+	frag = magenta bold
+	old = red bold
+	new = green bold
+
+[color "status"]
+	added = yellow
+	changed = green
+	untracked = red
+
+[alias]
+	a = add
+	b = branch
+	c = commit
+	d = diff
+	f = fetch
+	m = merge
+	p = pull
+	pu = push
+	st = status
+	u = reset HEAD --
+	co = checkout
+	sl = stash list
+	sa = stash apply
+	ss = stash save
+	sd = stash drop stash@{0}
+	unstage = reset HEAD --
+
+[url "https://github.com/"]
+	insteadOf = gh:
+
+[url "https://gist.github.com/"]
+	insteadOf = gist:
+
+[url "https://bitbucket.org/"]
+	insteadOf = bb:
+
+[url "https://gitlab.com"]
+	insteadOf= gl:
