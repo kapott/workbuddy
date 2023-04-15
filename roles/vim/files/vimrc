@@ -11,7 +11,6 @@ Plugin 'VundleVim/Vundle.vim'
 Plugin 'morhetz/gruvbox'
 
 "-- IDE-like features
-Plugin 'scrooloose/nerdtree'
 Plugin 'christoomey/vim-tmux-navigator'
 
 "-- requires fzf to be installed, install it from github junegunn/fzf
@@ -22,8 +21,6 @@ Plugin 'junegunn/fzf'
 Plugin 'airblade/vim-gitgutter'
 Plugin 'tpope/vim-fugitive'
 
-"-- My productivity systme
-Plugin 'vimwiki/vimwiki'
 "-- Utility functions / libs / dependencies
 Plugin 'MarcWeber/vim-addon-mw-utils'
 Plugin 'tomtom/tlib_vim'
@@ -34,8 +31,8 @@ call vundle#end()
 "--- Legibility & usability
 set showbreak=↪\
 set listchars=tab:→\ ,eol:↲,nbsp:␣,trail:•,extends:⟩,precedes:⟨
-let mapleader = ","
-let g:mapleader = ","
+let mapleader = " "
+let g:mapleader = " "
 set incsearch
 set hlsearch
 set so=1
@@ -102,10 +99,6 @@ nnoremap <silent> <C-t> :tabnew<CR>
 " --- Open up a terminal in vim
 map <Leader>tt :vert term<CR>
 
-"-- Dont want to shift to enter command mode
-"nnoremap ; :
-"nnoremap : ;
-
 "--- Toggle invisible chars (t)oggle (i)nvisible
 nnoremap <Leader>ti :set list!<CR>
 
@@ -167,14 +160,6 @@ nnoremap <Leader>gst :Git<CR>
 nnoremap <Leader>gp :Git push<CR>
 nnoremap <Leader>gb :Git blame<CR>
 
-"--- Plugin: Nerdtree
-map <C-n> :NERDTreeToggle<CR>
-let g:NERDTreeWinSize=40
-
-"Autoclose if NERDTree is the only window left
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-let NERDTreeShowHidden=1
-
 "--- Plugin: fzf
 "In the results window:
 " <C-v> open in vsplit
@@ -189,37 +174,3 @@ nnoremap <C-f> :Rg<CR>
 
 "make ripgrep ignore filenames, increases it's usability.
 command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always --smart-case ".shellescape(<q-args>), 1, {'options': '--delimiter : --nth 4..'}, <bang>0)
-
-"--- Plugin: Airline
-if !exists('g:airline_symbols')
-	let g:airline_symbols = {}
-endif
-
-let g:airline_powerline_fonts = 1
-let g:airline_theme='minimalist'
-let g:airline#extensions#tabline#enabled = 1
-
-" unicode symbols
-let g:airline_left_sep = '»'
-let g:airline_left_sep = '▶'
-let g:airline_right_sep = '«'
-let g:airline_right_sep = '◀'
-let g:airline_symbols.linenr = '␊'
-let g:airline_symbols.linenr = '␤'
-let g:airline_symbols.linenr = '¶'
-let g:airline_symbols.branch = '⎇'
-let g:airline_symbols.paste = 'ρ'
-let g:airline_symbols.paste = 'Þ'
-let g:airline_symbols.paste = '∥'
-let g:airline_symbols.whitespace = 'Ξ'
-
-" airline symbols
-let g:airline_left_sep = ''
-let g:airline_left_alt_sep = ''
-let g:airline_right_sep = ''
-let g:airline_right_alt_sep = ''
-let g:airline_symbols.branch = ''
-let g:airline_symbols.readonly = ''
-let g:airline_symbols.linenr = ''
-let g:airline_powerline_fonts = 1
-
