@@ -1,5 +1,6 @@
 ---
-- name: Set up sysadmin tooling.
+- name: Set up local sysadmin tooling.
+  hosts: local
   roles:
     # Tag each role so that we can select individual roles to run with ansible-playbook --tags
     - {role: git, tags: ['git']}
@@ -16,7 +17,7 @@
       #- {role: exa, tags: ['exa']}
       #- {role: gsed, tags: ['gsed']}
       #- {role: bat, tags: ['bat']}
-      #- {role: tmux, tags: ['tmux']}
+    - {role: tmux, tags: ['tmux']}
       #- {role: kubernetes, tags: ['kubernetes']}
       #- {role: jrnl, tags: ['jrnl']}
       #- {role: k9s, tags: ['k9s']}
