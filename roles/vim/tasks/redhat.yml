@@ -1,4 +1,4 @@
 ---
 - name: Install vim with yum
-  yum: name=neovim state=present
-  become_method: sudo
+  yum: name=vim state=present
+  become: yes

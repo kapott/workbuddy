@@ -2,7 +2,7 @@
 - import_tasks: debian.yml
   when: ansible_os_family == "Debian"
 - import_tasks: redhat.yml
-  when: ansible_os_family == "Redhat"
+  when: ansible_os_family == "RedHat"
 - import_tasks: mac.yml
   when: ansible_os_family == "Darwin"
 
@@ -19,10 +19,15 @@
 
 - name: Symlink vimrc
   file:
-    src: "{{ dotfiles_home }}/roles/vim/files/vimrc"
-    dest: "{{dotfiles_user_home}}/.vimrc"
+    src: "{{ repo_home }}/roles/vim/files/vimrc"
+    dest: "{{ dotfiles_user_home }}/.vimrc"
     state: link
 
+- name: Clone Vundle into place...
+  git:
+    repo: https://github.com/VundleVim/Vundle.vim
+    dest: "{{dotfiles_user_home}}/.vim/bundle/Vundle.vim"
+
 - name: Install plugins
-  command: vim +PlugInstall +qall
-  when: vim_install_plugins|bool
+  command: "vim +PluginInstall +qall"
+  #when: vim_install_plugins|bool
