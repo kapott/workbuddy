@@ -4,7 +4,7 @@ Ansible scripts to push different kinds of work environments to remote linux box
 Assume every application is a role. Every role combines into a playbook which is aimed at performing some function.
 
 Install tools locally (dotfiles, plugins etc.)
-`ansible-playbook sysadmin.yml -i ./inventories/localhost --ask-become-pass`
+`ansible-playbook local-tools.yml -i ./inventories/localhost --ask-become-pass`
 
 
 
