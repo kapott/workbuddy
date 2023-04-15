@@ -1,23 +1,10 @@
----
-- name: Get HOME dir
-  vars:
-    home: "{{ lookup('env', 'HOME') }}"
-    
+---   
 - name: Install tmux
   homebrew: name=tmux state=present
 
-- name: Copy the tmux config
-  copy:
-    src: tmux.conf
-    dest: "{{home}}/.config/tmux.conf"
-
-- name: Copy the tmux config addon for mac
-  copy:
-    src: tmux.osx.conf
-    dest: "{{home}}/.config/tmux.osx.conf"
-
-- name: Symlink to the file
+- name: Symlink osx specific tmux conf hack
   file:
-    src: "{{home}}/.config/tmux.conf"
-    dest: "{{home}}/.tmux.conf"
+    src: "{{ repo_home }}/roles/tmux/files/tmux.osx.conf"
+    dest: "{{ dotfiles_user_home }}/.tmux.osx.conf"
     state: link
+

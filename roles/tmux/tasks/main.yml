@@ -3,7 +3,13 @@
   when: ansible_os_family == "Debian"
 
 - import_tasks: redhat.yml
-  when: ansible_os_family == "Redhat"
+  when: ansible_os_family == "RedHat"
 
 - import_tasks: macos.yml
   when: ansible_os_family == "Darwin"
+
+- name: Symlink tmux conf
+  file:
+    src: "{{ repo_home }}/roles/tmux/files/tmux.conf"
+    dest: "{{ dotfiles_user_home }}/.tmux.conf"
+    state: link
