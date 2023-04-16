@@ -1,6 +1,6 @@
 # .bashrc
 
-export $(envsubst < .env)
+export $(envsubst < ~/.env)
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
