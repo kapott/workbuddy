@@ -13,7 +13,7 @@ function biggestfiles {
 }
 
 certspotter(){
-	curl -s "https://api.certspotter.com/v1/issuances?domain=$1&include_subdomains=true&expand=dns_names" #\
+	curl -s "https://api.certspotter.com/v1/issuances?domain=$1&include_subdomains=true&expand=dns_names" \
 		| jq '.[].dns_names[]' \
 		| sed 's/\"//g' \
 		| sed 's/\*\.//g' \
