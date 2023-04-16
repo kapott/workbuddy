@@ -1,0 +1,40 @@
+---
+
+- name: Create directory for our bash scripts
+  file:
+    path: "{{ dotfiles_user_home }}/.bashrc.d"
+    state: directory
+
+- name: Symlink our bash config files
+  file:
+    src: "{{ role_path }}/files/bashrc.d/{{ item }}"
+    dest: "{{ dotfiles_user_home }}/.bashrc.d/{{ item }}"
+    state: link
+  loop:
+    - "10-functions"
+    - "20-settings"
+    - "99-z"
+
+- name: Symlink cross-shell environment file
+  file:
+    src: "{{ repo_home }}/roles/bash/files/env"
+    dest: "{{ dotfiles_user_home }}/.env"
+    state: link
+    force: true
+
+- name: Check if bashrc exists
+  stat: path="{{dotfiles_user_home}}/.bashrc"
+  register: bashrc_status
+  failed_when: False
+
+- name: Backup bashrc
+  command: mv ~/.bashrc ~/.bashrc.bak
+  args:
+    creates: "{{dotfiles_user_home}}/.bashrc.bak"
+  when: bashrc_status.stat.exists
+
+- name: Symlink bashrc
+  file:
+    src: "{{ repo_home }}/roles/bash/files/bashrc"
+    dest: "{{dotfiles_user_home}}/.bashrc"
+    state: link
