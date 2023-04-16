@@ -1,0 +1,172 @@
+###
+# A function should be used when you need to do something more complex than an
+# alias but that wouldn't be of use on its own.
+###
+
+# Usage:
+# biggestfiles <directory (optional)> <# of files to display (optional)>
+# Will show the biggest files in a directory and it's subdirectories
+function biggestfiles {
+  local finddir=${1:-"."}
+  local findnum=${2:-"20"}
+  find "${finddir}" -type f -printf "%s\t%p\n" | sort -r -n | head "${findnum}"
+}
+
+certspotter(){
+	curl -s "https://api.certspotter.com/v1/issuances?domain=$1&include_subdomains=true&expand=dns_names" #\
+		| jq '.[].dns_names[]' \
+		| sed 's/\"//g' \
+		| sed 's/\*\.//g' \
+		| sort -u \
+		| grep $1
+}
+
+crtsh(){
+	local grep_domain
+	grep_domain=$(echo $1 | sed "s/\%.*\%//g" | sed "s/\%//g")
+	curl \
+		-G \
+		-m 9000 \
+		-s \
+		--data-urlencode "q=$1" \
+		"https://crt.sh/" | \
+		sed 's/<\/\?[^>]\+>//g' | \
+		grep $grep_domain | \
+		grep -v 'LIKE' | \
+		grep -v 'crt.sh | %' | \
+		tr -d ' '
+}
+
+certnmap(){
+	curl https://certspotter.com/api/v0/certs\?domain\=$1 | jq
+	'.[].dns_names[]'\
+		| sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $1 \
+		| nmap -T5 -Pn -sS -i
+	- -$
+}
+
+
+# Usage:
+# check_process <processname>
+# Checks if a process is running or not
+check_process() {
+	local out=$(ps aux | grep "$1" | grep -v grep)
+  if [[ $out = *"$1"* ]]; then
+    echo -e "${GREEN}OK${NC}: $1 is running"
+  else
+    echo -e "${RED}NOK${NC}: $1 not running"
+  fi
+}
+
+# Usage:
+# command_exists <commandname>
+# Checks if a command exists in any way, shape or form
+command_exists() {
+  type "$1" &> /dev/null
+}
+
+# Usage: cputop <number of processes to list (optional, default is 10)
+# Shows a list of <num> running processes, sorted by most usage
+cputop() {
+  ps aux | sort -nr -k 3 | tr -s ' ' | cut -d ' ' -f 1,2,3,11 | head -n ${1:-"10"}
+}
+
+# Usage: datetag <filename>
+# Will change  a file's name to <filename>_<last_modified_date>
+datetag() {
+  local mod_date="$(stat -c %y ${1} | awk '{print $1}')"
+  mv ${1} ${mod_date}_${1}
+}
+
+dotreverse() {
+	if [ -f "$1" ]; then
+		cat $1 | perl -lpe '$_ = join ".", reverse split /\./;'
+	else
+		echo $1 | perl -lpe '$_ = join ".", reverse split /\./;'
+	fi
+}
+
+fake_mac_address() {
+	date | md5sum | sed -r 's/(..){3}/\1:/g;s/\s+-$//'
+}
+
+# Usage: genpass <length (optional, default is 25)>
+# Generate a password using openssl rand
+genpass() {
+  command -v openssl >/dev/null 2>&1 && openssl rand -base64 ${1:-"25"} | sed 's/..$//'
+}
+
+gpg_agent_start() {
+  check_process gpg-agent | grep 'KO' &> /dev/null
+  if [ $? == 0 ]; then
+    gpg-agent --daemon
+    check_process gpg-agent
+  fi
+}
+
+host2ips() {
+  input="$1"
+  if [ ! -f "${1}" ]; then
+    echo "File not found: $1"
+  	exit 1;
+  fi
+
+  while IFS= read -r line
+  do
+  	getent hosts "$line" | awk '{ print $1 }'
+  done < "$input"
+}
+
+ipinfo() {
+	curl http://ipinfo.io/$1
+}
+
+# Usage: killport <portnum>
+# Kills the process running on port <portnum>
+killport() {
+  local portnum=${1:-"80"}
+  lsof -i :${portnum} | awk '{l=$2} END {print l}' | xargs --no-run-if-empty kill
+}
+
+# Wraps the man command so it also works for bash built-ins, like
+# 'cd' and 'command'.
+man() {
+    case "$(type -t -- "$1")" in
+    builtin|keyword)
+        help -m "$1" | sensible-pager
+        ;;
+    *)
+        command man "$@"
+        ;;
+    esac
+}
+
+# Usage: memtop <number of processes to show (optional, default is 10)>
+# Shows a list of <num> running processes, sorted by most usage
+memtop() {
+  ps aux | sort -nr -k 4 | tr -s ' ' | cut -d ' ' -f 1,2,4,11 | head -n ${1:-"10"}
+}
+
+# Realsize is useful for determining the actual size of e.g. incremental
+# backup locations, since incremental backups are done by hard-linking.
+# This means that the "real" total size is only the difference between
+# the last full backup, and the current state.
+realsize() {
+  du -shc "$@"
+}
+
+# Reverse $1 by seperator $2. Great for reversing DNS names, for instance
+reverse() {
+  tr "${2}" $'\n' <<< "${1}" | tac | paste -s -d "${2}"
+}
+# tunnelfrom tunnels a remote port to the local machine
+# be sure to set up your keys and other settings in your ~/.ssh/config
+# (e.g. non-standard ports, hostnames etc)
+#
+# use: tunnelfrom remote.host.com:9999 (will forward to localhost 9999)
+#
+tunnelfrom() {
+ local hostname=$(echo $1 | cut -d':' -f1)
+ local portnum=$(echo $1 | cut -d':' -f2)
+ ssh -fNL $portnum:127.0.0.1:$portnum $hostname
+}
