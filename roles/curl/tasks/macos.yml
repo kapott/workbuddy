@@ -1,0 +1,3 @@
+---
+- name: Install curl.
+  homebrew: name=curl state=present

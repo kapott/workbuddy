@@ -1,0 +1,4 @@
+---
+- name: Install curl.
+  yum: name=curl state=present
+  become: yes
