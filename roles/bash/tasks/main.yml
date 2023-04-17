@@ -11,6 +11,7 @@
     dest: "{{ dotfiles_user_home }}/.bashrc.d/{{ item }}"
     state: link
   loop:
+    - "00-aliases"
     - "10-functions"
     - "20-settings"
     - "99-z"
