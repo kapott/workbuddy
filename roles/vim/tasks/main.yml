@@ -3,7 +3,7 @@
   when: ansible_os_family == "Debian"
 - import_tasks: redhat.yml
   when: ansible_os_family == "RedHat"
-- import_tasks: mac.yml
+- import_tasks: macos.yml
   when: ansible_os_family == "Darwin"
 
 - name: Check if vimrc exists
