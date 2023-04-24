@@ -1,7 +1,7 @@
 ---
 - name: Install git with yum
   yum: name=git state=present
-  become: yes
+  become: true
 
 - name: Symlink gitconfig
   file:
