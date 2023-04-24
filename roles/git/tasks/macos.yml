@@ -1,3 +1,12 @@
 ---
 - name: Install git with homebrew
   homebrew: name=git state=present
+
+- name: Symlink gitconfig
+  file:
+    src: "{{ repo_home }}/roles/git/files/gitconfig"
+    dest: "{{ dotfiles_user_home }}/.gitconfig"
+    state: link
+
+- name: Configure OSX Keychain to be the git helper
+  shell: git config --global credential.helper osxkeychain
