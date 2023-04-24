@@ -17,13 +17,6 @@
     - "30-settings"
     - "99-z"
 
-- name: Symlink cross-shell environment file
-  file:
-    src: "{{ repo_home }}/roles/bash/files/env"
-    dest: "{{ dotfiles_user_home }}/.env"
-    state: link
-    force: true
-
 - name: Check if bashrc exists
   stat: path="{{dotfiles_user_home}}/.bashrc"
   register: bashrc_status
