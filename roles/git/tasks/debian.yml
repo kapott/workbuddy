@@ -2,9 +2,3 @@
 - name: Install git with apt
   apt: name=git state=present
   become: true
-
-- name: Symlink gitconfig
-  file:
-    src: "{{ repo_home }}/roles/git/files/gitconfig"
-    dest: "{{ dotfiles_user_home }}/.gitconfig"
-    state: link
