@@ -1,10 +1,12 @@
 # .bashrc
 
-export $(envsubst < ~/.env)
-
 # Source global definitions
 if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
+fi
+
+if [ -d "/opt/homebrew" ]; then
+	export PATH=$(/opt/homebrew/bin/brew --prefix)/bin:$PATH
 fi
 
 # User specific environment

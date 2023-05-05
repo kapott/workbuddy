@@ -1,0 +1,24 @@
+---
+- name: Ensure homebrew is installed (Apple Silicon).
+  stat:
+    path: /opt/homebrew
+  register: homebrew_exists
+
+- name: Fail if homebrew is missing.
+  fail:
+    msg: Homebrew is missing. Install from brew.sh
+  when:
+    - not homebrew_exists.stat.exists
+    - not install_homebrew_if_missing
+
+- name: Installing homebrew.
+  shell: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    - not homebrew_check.stat.exists
+    - install_homebrew_if_missing
+
+- name: Install packages we need with homebrew.
+  homebrew:
+    name : {{item}}
+    state: present
+  loop:
+    - gettext

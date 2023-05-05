@@ -1,3 +1,8 @@
+﻿scriptencoding utf-8
+set encoding=utf-8
+set fileencoding=utf-8
+set bomb
+
 set nocp
 
 filetype off
@@ -29,7 +34,7 @@ Plugin 'dag/vim-fish'
 call vundle#end()
 
 "--- Legibility & usability
-set showbreak=↪\
+let &showbreak='↪ '
 set listchars=tab:→\ ,eol:↲,nbsp:␣,trail:•,extends:⟩,precedes:⟨
 let mapleader = " "
 let g:mapleader = " "
@@ -47,7 +52,7 @@ set backspace=indent,eol,start
 "--- Text wrapping & line length
 set colorcolumn=81
 set textwidth=0
-set nowrap
+set wrap
 
 "--- Code indentation & formatting
 set ai
