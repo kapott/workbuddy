@@ -6,6 +6,8 @@ alias fgrep='fgrep --color=auto'
 alias grep='grep --color=auto'
 alias ll='ls -laH'
 
+alias tmux='tmux -u'
+
 # One letter aliases
 alias f='find'
 alias g='git'

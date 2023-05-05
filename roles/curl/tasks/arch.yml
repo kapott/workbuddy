@@ -1,0 +1,4 @@
+---
+- name: Install curl with pacman.
+  community.general.pacman: name=curl state=present
+  become: true

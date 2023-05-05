@@ -1,11 +1,18 @@
 ---
-- name: Print OS
-  debug:
-    var: ansible_os_family
+- name: Symlink gitconfig
+  file:
+    src: "{{ repo_home }}/roles/git/files/gitconfig"
+    dest: "{{ dotfiles_user_home }}/.gitconfig"
+    state: link
+
+- import_tasks: arch.yml
+  when: ansible_os_family == "Archlinux"
+
+- import_tasks: macos.yml
+  when: ansible_os_family == "Darwin"
 
 - import_tasks: debian.yml
   when: ansible_os_family == "Debian"
+
 - import_tasks: redhat.yml
   when: ansible_os_family == "RedHat"
-#- import_tasks: mac.yml
-#  when: ansible_os_family == "Darwin"
