@@ -10,6 +10,6 @@
 
 - name: Symlink tmux conf
   file:
-    src: "{{ repo_home }}/roles/tmux/files/tmux.conf"
+    src: "{{ role_path }}/files/tmux.conf"
     dest: "{{ dotfiles_user_home }}/.tmux.conf"
     state: link
