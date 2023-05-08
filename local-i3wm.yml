@@ -1,0 +1,17 @@
+---
+- name: Set up i3wm desktop environment.
+  hosts: local
+  roles:
+    - {role: i3wm, tags: ['i3wm']}
+    #- {role: git, tags: ['git']}
+    #- {role: vim, tags: ['vim, bootstrap']}
+    #- {role: rg, tags: ['rg']}
+    #- {role: fzf, tags: ['fzf']}
+    #- {role: curl, tags: ['curl']}
+    #- {role: bash, tags: ['bash, bootstrap']}
+    #- {role: tmux, tags: ['tmux, bootstrap']}
+    #- {role: package_manager, tags: ['package_manager', 'bootstrap']}
+    #- {role: python, tags: ['python']}
+    #- {role: node, tags: ['node']}
+    #- {role: kubernetes, tags: ['kubernetes']}
+
