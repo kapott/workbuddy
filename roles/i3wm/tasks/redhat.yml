@@ -22,6 +22,7 @@
     - pavucontrol
     - rxvt-unicode
     - xsel
+    - polybar
   become: true
 
 - name: Check if fonts exist.
