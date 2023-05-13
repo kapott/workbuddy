@@ -6,7 +6,7 @@ set $mod Mod4
 
 # The 'Hack mono' nerdfont should be installed.
 # fc-match "HackNerdFontMono"
-font pango:HackNerdFontMono 6
+font pango:HackNerdFontMono 8
 
 # Start XDG autostart .desktop files using dex. See also
 # https://wiki.archlinux.org/index.php/XDG_Autostart
@@ -110,16 +110,16 @@ bindsym $mod+comma scratchpad show
 
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
-set $ws1 "1:notes"
-set $ws2 "2:browse"
-set $ws3 "3:term"
-set $ws4 "4:mail"
-set $ws5 "5:chat"
-set $ws6 "6:"
-set $ws7 "7:"
-set $ws8 "8:"
-set $ws9 "9:rdp"
-set $ws10 "10:bg"
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+set $ws10 "10"
 
 # switch to workspace
 bindsym $mod+1 workspace $ws1
@@ -178,18 +178,6 @@ mode "resize" {
 }
 
 bindsym $mod+r mode "resize"
-
-# Start i3bar to display a workspace bar (plus the system information i3status
-# finds out, if available)
-bar {
-		position top
-        status_command i3blocks
-
-        colors {
-                background #263640
-        }
-}
-
 # Enable bouncing with the same key
 workspace_auto_back_and_forth yes
 
@@ -197,10 +185,20 @@ workspace_auto_back_and_forth yes
 bindsym $mod+Ctrl+greater move workspace to output right
 bindsym $mod+Ctrl+less move workspace to output left
 
+# Dat gap...
 gaps inner 20
 gaps outer 10
+
+# Dem colors!
+#Class	border backgr. texgt indicator child_border
+client.focused	#4c7899 #28557 #ffffff #28577
+client.focused_inactie #333333 #5f676a #ffffff #484e50 #5f676a
+client.unfocused #333333 #222222 #888888 #292d2e #222222
+client.urgent #000000 #0c0c0c #ffffff #000000 #0c0c0c
+client.background #ffffff
 
 for_window [class=".*"] border pixel 0
 hide_edge_borders both
 
 exec_always --no-startup-id exec bash $HOME/.fehbg
+exec polybar

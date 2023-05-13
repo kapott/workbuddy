@@ -21,6 +21,18 @@ Install i3wm with gaps, rofi etc.
 Install the ansible-galaxy community collection:
 `ansible-galaxy collection install community.general`
 
+
+### Todo list
+
+- [ ] 
+- [ ] i3wm workspace assignment for most used apps
+- [ ] use and configure polybar
+- [ ] sub rxvt with alacritty
+- [ ] find or makedecent colorscheme to make everything coherent (vim,tmux,i3,rofi)
+- [ ] find or make decent networking script / indicator for the statusbar
+- [ ] find or make decent sound device and volume control for statusbar
+- [ ] find or make a decent battery indicator for i3
+
 ### Reference material
 
 [Ansible best practises](https://docs.ansible.com/ansible/2.8/user_guide/playbooks_best_practices.html)
