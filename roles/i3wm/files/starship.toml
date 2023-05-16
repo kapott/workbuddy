@@ -23,7 +23,7 @@ disabled = false
 
 # Shows an icon depending on what device it is running on
 [env_var.STARSHIP_DEVICE]
-format = 'on [$env_value](bold yellow)'
+format = 'on [$env_value](bold yellow) '
 variable = "STARSHIP_DEVICE"
 disabled = false
 
