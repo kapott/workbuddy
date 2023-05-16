@@ -1,0 +1,21 @@
+---
+- name: Install alacritty
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - alacritty
+  become: true
+
+- name: Make sure our config dir exists.
+  file:
+    path: "{{ lookup('ansible.builtin.env', 'HOME') }}/.config/alacritty"
+    state: directory
+
+- name: Link our alacritty config.
+  file:
+    src: "{{ role_path }}/files/alacritty.yml"
+    dest: "{{ lookup('ansible.builtin.env', 'XDG_CONFIG_HOME') or default_config }}/alacritty/alacritty.yml"
+    state: link
+  vars: 
+    default_config: "{{ '~' | expanduser }}/.config"
