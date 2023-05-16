@@ -224,6 +224,7 @@ assign [class="(?i).*thunderbird.*"] $ws5
 
 exec_always --no-startup-id exec bash $HOME/.fehbg
 exec --no-startup-id mate-power-manager
-exec --no-startup-id dunst
-exec polybar
+exec protonmail-bridge --no-window --noninteractive
+exec_always "sh dunst.sh"
+exec_always "sh polybar.sh"
 

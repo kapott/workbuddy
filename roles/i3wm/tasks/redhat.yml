@@ -23,6 +23,7 @@
     - xsel
     - polybar
     - dunst
+    - networkmanager-tui
   become: true
 
 - name: Check if fonts exist.
@@ -57,6 +58,3 @@
     state: link
   vars: 
     default_config: "{{ '~' | expanduser }}/.config"
-
-- name: Reload xrdb.
-  shell: xrdb ~/.Xresources
