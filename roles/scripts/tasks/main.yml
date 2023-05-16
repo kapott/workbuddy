@@ -1,0 +1,15 @@
+---
+- name: Check if our user's script dir exists.
+  file:
+    path: "{{ lookup('ansible.builtin.env', 'HOME') }}/bin"
+    state: directory
+
+- name: Link our shellscripts.
+  file:
+    src: "{{ role_path }}/files/{{ item }}"
+    dest: "{{ lookup('ansible.builtin.env', 'HOME') }}/bin/{{ item }}"
+    state: link
+  loop:
+    - "dunst.sh"
+    - "lolban.sh"
+    - "vpn.sh"
