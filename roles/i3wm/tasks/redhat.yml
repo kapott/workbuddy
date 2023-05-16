@@ -13,7 +13,6 @@
     state: present
   loop:
     - i3-gaps
-    - i3blocks
     - rofi
     - fontawesome-fonts
     - feh
@@ -23,6 +22,7 @@
     - rxvt-unicode
     - xsel
     - polybar
+    - dunst
   become: true
 
 - name: Check if fonts exist.
@@ -50,21 +50,6 @@
   vars: 
     default_config: "{{ '~' | expanduser }}/.config"
 
-- name: Clone i3blocks-contrib repo for standard scripts.
-  ansible.builtin.git:
-    repo: https://github.com/vivien/i3blocks-contrib
-    dest: "{{ lookup('ansible.builtin.env', 'XDG_CONFIG_HOME') or default_config }}/i3blocks"
-  vars: 
-    default_config: "{{ '~' | expanduser }}/.config"
-
-- name: Link our i3blocks config.
-  file:
-    src: "{{ role_path }}/files/i3blocks-config"
-    dest: "{{ lookup('ansible.builtin.env', 'XDG_CONFIG_HOME') or default_config }}/i3blocks/config"
-    state: link
-  vars: 
-    default_config: "{{ '~' | expanduser }}/.config"
-
 - name: Link our starship prompt config.
   file:
     src: "{{ role_path }}/files/starship.toml"
@@ -72,14 +57,6 @@
     state: link
   vars: 
     default_config: "{{ '~' | expanduser }}/.config"
-
-- name: Symlink our Xresources.
-  file:
-    src: "{{ role_path }}/files/Xresources"
-    dest: "{{ lookup('ansible.builtin.env', 'HOME') or default_config }}/.Xresources"
-    state: link
-  vars: 
-    default_config: "{{ '~' | expanduser }}"
 
 - name: Reload xrdb.
   shell: xrdb ~/.Xresources
