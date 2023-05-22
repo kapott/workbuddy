@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 ###
 # A function should be used when you need to do something more complex than an
 # alias but that wouldn't be of use on its own.
@@ -31,26 +33,25 @@ crtsh(){
 		--data-urlencode "q=$1" \
 		"https://crt.sh/" | \
 		sed 's/<\/\?[^>]\+>//g' | \
-		grep $grep_domain | \
+		grep "$grep_domain" | \
 		grep -v 'LIKE' | \
 		grep -v 'crt.sh | %' | \
 		tr -d ' '
 }
 
 certnmap(){
-	curl https://certspotter.com/api/v0/certs\?domain\=$1 | jq
-	'.[].dns_names[]'\
-		| sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $1 \
-		| nmap -T5 -Pn -sS -i
-	- -$
+	curl https://certspotter.com/api/v0/certs\?domain\=$1 | 
+  jq '.[].dns_names[]'\
+		| sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep "$1" \
+		| nmap -T5 -Pn -sS -i- -$
 }
-
 
 # Usage:
 # check_process <processname>
 # Checks if a process is running or not
 check_process() {
-	local out=$(ps aux | grep "$1" | grep -v grep)
+	local out
+  out=$(ps aux | grep "$1" | grep -v grep)
   if [[ $out = *"$1"* ]]; then
     echo -e "${GREEN}OK${NC}: $1 is running"
   else
@@ -74,15 +75,16 @@ cputop() {
 # Usage: datetag <filename>
 # Will change  a file's name to <filename>_<last_modified_date>
 datetag() {
-  local mod_date="$(stat -c %y ${1} | awk '{print $1}')"
-  mv ${1} ${mod_date}_${1}
+  local mod_date
+  mod_date="$(stat -c %y ${1} | awk '{print $1}')"
+  mv "${1}" "${mod_date}_${1}"
 }
 
 dotreverse() {
 	if [ -f "$1" ]; then
-		cat $1 | perl -lpe '$_ = join ".", reverse split /\./;'
+		cat "$1" | perl -lpe '$_ = join ".", reverse split /\./;'
 	else
-		echo $1 | perl -lpe '$_ = join ".", reverse split /\./;'
+		echo "$1" | perl -lpe '$_ = join ".", reverse split /\./;'
 	fi
 }
 
