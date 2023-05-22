@@ -7,8 +7,8 @@
     - {role: rg, tags: ['rg']}
     - {role: fzf, tags: ['fzf']}
     - {role: curl, tags: ['curl']}
-    - {role: bash, tags: ['bash, bootstrap']}
-    - {role: tmux, tags: ['tmux, bootstrap']}
+    - {role: bash, tags: ['bash', 'bootstrap']}
+    - {role: tmux, tags: ['tmux', 'bootstrap']}
 
     #- {role: package_manager, tags: ['package_manager', 'bootstrap']}
     #- {role: python, tags: ['python']}
