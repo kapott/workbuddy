@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -e
+
+_run() {
+    printf "\n>> %s \n\n" "$1"
+    $1
+}
+
+runIfExists() {
+    if [ -x "$(command -v "$1")" ]; then
+        _run "$2"
+    fi
+}
+
+update() {
+    # Arbitrary trigger for sudo password prompt using the "true" command.
+    # This is so we type it once, at the beginning.
+    sudo true
+
+    # Arch-based
+    runIfExists "pacman" "sudo pacman -Syu"
+
+    # Debian-based
+    runIfExists "apt" "sudo apt update"
+    runIfExists "apt" "sudo apt full-upgrade -y"
+    runIfExists "apt-get" "sudo apt-get clean -y"
+    runIfExists "apt-get" "sudo apt-get autoclean -y"
+    runIfExists "apt-get" "sudo apt-get autoremove -y --purge"
+
+    # Redhat-based
+    runIfExists "yum" "sudo yum update -y"
+    runIfExists "yum" "sudo yum clean all"
+
+    runIfExists "snap" "sudo snap refresh"
+    runIfExists "flatpak" "flatpak update"
+    runIfExists "brew" "brew update"
+    runIfExists "brew" "brew upgrade"
+}
+
