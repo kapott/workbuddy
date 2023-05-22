@@ -1,11 +1,10 @@
+#!/usr/bin/env bash
 
 # Recolor remaps
 alias ls='ls --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias grep='grep --color=auto'
-alias ll='ls -laH'
-
 alias tmux='tmux -u'
 
 # One letter aliases
@@ -13,13 +12,15 @@ alias f='find'
 alias g='git'
 alias t='tmux new -AsBOFH'
 alias k='kubectl'
+alias l='ls'
 alias m='mutt'
 alias v='vim'
-alias u='sudo yum update -y || sudo apt update && sudo apt upgrade -y  || sudo pacman -Syu'
+alias u='update'
 
 # Two letter aliases
 alias ff='find . -type f -name'
 alias gh='history|grep'
+alias ll='ls -laH'
 alias lt='ls --human-readable --size -1 -S --classify'
 alias sv='sudo vim'
 
