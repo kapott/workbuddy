@@ -15,7 +15,7 @@ alias k='kubectl'
 alias l='ls'
 alias m='mutt'
 alias v='vim'
-alias u='update'
+alias u='upg'
 
 # Two letter aliases
 alias ff='find . -type f -name'

@@ -12,7 +12,7 @@ runIfExists() {
     fi
 }
 
-update() {
+upg() {
     # Arbitrary trigger for sudo password prompt using the "true" command.
     # This is so we type it once, at the beginning.
     sudo true
