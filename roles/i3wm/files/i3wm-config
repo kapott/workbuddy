@@ -195,16 +195,30 @@ gaps outer 10
 # Dem colors!
 #Class	border backgr. texgt indicator child_border
 
-set $background "#222222"
+set $background #2e2e2e
+set $comment #797979
+set $blue #66d9ef
+set $white #d6d6d6
+set $yellow #e5b567
+#set $green #b4d273
+set $green #a6e22e
+#set $orange #e87d3e
+set $orange #fd971f
+#set $purple #9e86c8
+set $purple #ae81ff
+#set $pink #b05279
+set $pink #f92672
+set $blue #6c99bb
 
-client.focused	#4c7899 #28557 #ffffff #28577
-client.focused_inactie #333333 #5f676a #ffffff #484e50 #5f676a
-client.unfocused #333333 #222222 #888888 #292d2e #222222
-client.urgent #000000 #0c0c0c #ffffff #000000 #0c0c0c
-client.background #ffffff
+# item                  border      background  text        indicator child border
+client.focused	        $green      $background $green      $green    $green
+client.focused_inactive $background $background $white      #484e50   #5f676a
+client.unfocused        $background $background $comment    #292d2e   #222222
+client.urgent           $pink       $pink       $whtie      $pink     $pink
+client.background       $background
 
-# for_window [class=".*"] border pixel 0
-# hide_edge_borders both
+for_window [class=".*"] border pixel 4
+hide_edge_borders both
 
 # --- assign apps
 assign [class="(?i)firefox"] $ws1
