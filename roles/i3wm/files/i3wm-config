@@ -6,7 +6,7 @@ set $mod Mod4
 
 # The 'Hack mono' nerdfont should be installed.
 # fc-match "HackNerdFontMono"
-font pango:Hack Nerd Font 9
+font pango:Hack Nerd Font 12
 
 # Start XDG autostart .desktop files using dex. See also
 # https://wiki.archlinux.org/index.php/XDG_Autostart
@@ -245,7 +245,6 @@ assign [class="(?i).*wfica.*"] $ws10
 
 exec_always --no-startup-id exec bash $HOME/.fehbg
 exec --no-startup-id mate-power-manager
-exec protonmail-bridge --no-window --noninteractive
 exec_always "sh dunst.sh"
 exec_always "sh polybar.sh"
 
