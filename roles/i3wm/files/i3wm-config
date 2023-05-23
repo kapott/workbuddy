@@ -214,16 +214,20 @@ assign [class="(?i)chromium"] $ws1
 assign [class="(?i)URxvt"] $ws2
 assign [class="(?i)alacritty"] $ws2
 
-assign [class="(?i)vscodium"] $ws3
-assign [class="(?i).*code.*"] $ws3
-assign [class="(?i).*sublime.*"] $ws3
+assign [class="(?i)obsidian"] $ws3
 
-assign [class="(?i).*signal.*"] $ws4
-assign [class="(?i).*whatsapp.*"] $ws4
-assign [class="(?i).*mattermost.*"] $ws4
-assign [class="(?i).*webex.*"] $ws4
+assign [class="(?i)vscodium"] $ws4
+assign [class="(?i).*code.*"] $ws4
+assign [class="(?i).*sublime.*"] $ws4
 
-assign [class="(?i).*thunderbird.*"] $ws5
+assign [class="(?i).*signal.*"] $ws5
+assign [class="(?i).*whatsapp.*"] $ws5
+assign [class="(?i).*mattermost.*"] $ws5
+assign [class="(?i).*webex.*"] $ws5
+
+assign [class="(?i).*thunderbird.*"] $ws6
+
+assign [class="(?i).*wfica.*"] $ws10
 
 exec_always --no-startup-id exec bash $HOME/.fehbg
 exec --no-startup-id mate-power-manager
