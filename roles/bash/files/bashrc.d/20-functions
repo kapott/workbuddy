@@ -130,6 +130,12 @@ killport() {
   lsof -i :${portnum} | awk '{l=$2} END {print l}' | xargs --no-run-if-empty kill
 }
 
+# Find top 10 largest dirs
+# largest_dirs /home
+function largest_dirs {
+  du -a "$1" | sort -n -r | head -n 10
+}
+
 # Wraps the man command so it also works for bash built-ins, like
 # 'cd' and 'command'.
 man() {
@@ -141,6 +147,27 @@ man() {
         command man "$@"
         ;;
     esac
+}
+
+# Usage: md5_crt_signingkey <filename.crt>
+# Returns a hash of the modulus of the signing key of the cert
+# so you can check with what key it was signed.
+function md5_crt_signingkey { 
+  openssl x509 -noout -modulus -in "$1" | openssl md5
+}
+
+#Usage: md5_privkey <filename.key>
+# Returns a hash of the modulus of the key
+# so you can check it against signin keys in certificates and csr's
+function md5_privkey {
+  openssl rsa -noout -modulus -in "$1" | openssl md5
+}
+
+# Usage: md5_csr_signinkey <fielname.csr>
+# Returns a hash of the modulus of the signing key used in a CSR
+# so yo can check what signing key was used for the CSR.
+function md5_csr_signingkey {
+  openssl req -noout -modulus -in "$1" | openssl md5
 }
 
 # Usage: memtop <number of processes to show (optional, default is 10)>
@@ -161,6 +188,12 @@ realsize() {
 reverse() {
   tr "${2}" $'\n' <<< "${1}" | tac | paste -s -d "${2}"
 }
+
+# When you want to save a file, so you have a way to recover.
+function save {
+	mv "$1" "$1_$(date +%F)"
+}
+
 # tunnelfrom tunnels a remote port to the local machine
 # be sure to set up your keys and other settings in your ~/.ssh/config
 # (e.g. non-standard ports, hostnames etc)
@@ -171,4 +204,35 @@ tunnelfrom() {
  local hostname=$(echo $1 | cut -d':' -f1)
  local portnum=$(echo $1 | cut -d':' -f2)
  ssh -fNL $portnum:127.0.0.1:$portnum $hostname
+}
+
+# Usage: key_and_cert_check byteherder.com
+# Provided you use a default hierarchy as follows:
+# opt
+# |_ openssl
+#     |_byteherder.com
+#         |_ crt
+#             |_ byteherder.com.crt
+#         |_ key
+#             |_ byteherder.com.key
+#         |_ csr
+#             |_ byteherder.com.csr
+#
+# This will check if the signing key and the key in the cert are the same.
+# useful for when you rotate keys and submit new CSR's
+function key_and_cert_check {
+  local certdir cert key
+	certdir='/opt/openssl'
+  echo "Starting check for: $1"
+	cert=$(openssl x509 -noout -modulus -in "$certdir/$1/crt/$1.crt" | openssl md5)
+	key=$(openssl rsa -noout -modulus -in "$certdir/$1/key/$1.key" | openssl md5)
+  if [ "$cert" == "$key" ]
+	then
+	  echo "Modulus for key and cert is the same: $cert"
+	else
+		echo "Modulus differs:"
+		echo "$cert"
+		echo "$key"
+	fi
+
 }
