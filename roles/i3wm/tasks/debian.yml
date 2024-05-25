@@ -1,0 +1,46 @@
+---
+- name: Install i3 plus some nice stuff.
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - autoconf
+    - build-essential
+    - rofi
+    - fonts-font-awesome
+    - feh
+    - flameshot
+    - x11-xserver-utils
+    - pavucontrol
+    - rxvt-unicode
+    - xsel
+    - polybar
+    - dunst
+    - network-manager
+  become: true
+
+- name: Check if fonts exist.
+  file:
+    path: "{{ lookup('env', 'HOME') }}/.fonts"
+    state: directory
+
+- name: Check if nerdfont 'hack' exists in the ~/.fonts dir.
+  shell: "ls {{ lookup('env', 'HOME') }}/.fonts/Hack*Nerd*Font*"
+  register: hack_font_check
+  ignore_errors: true
+
+- name: Download the 'hack' nerdfont.
+  when: hack_font_check is failed
+  ansible.builtin.unarchive:
+    src: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.0/Hack.zip
+    dest: "{{ lookup('env', 'HOME') }}/.fonts/"
+    remote_src: true
+
+- name: Link our i3 wm config.
+  file:
+    src: "{{ role_path }}/files/i3wm-config"
+    dest: "{{ lookup('ansible.builtin.env', 'XDG_CONFIG_HOME') or default_config }}/i3/config"
+    state: link
+  vars: 
+    default_config: "{{ '~' | expanduser }}/.config"
+
