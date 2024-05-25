@@ -9,6 +9,9 @@ shopt -s cdspell;
 command -v rg >/dev/null 2>&1 && export FZF_DEFAULT_COMMAND="rg --files --hidden"
 command -v rg >/dev/null 2>&1 || export FZF_DEFAULT_COMMAND="find -L"
 
+# Import fzf keybindings for bash if they're there.
+include /usr/share/doc/fzf/examples/key-bindings.bash
+
 # Check if we have an interactive shell
 if [[ $- == *i* ]]; then
 	stty -ixon 	# Disable START/STOP output control with ctrl-s and ctrl-q
