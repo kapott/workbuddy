@@ -119,6 +119,10 @@ host2ips() {
   done < "$input"
 }
 
+include () {
+	[[ -f "$1" ]] && source "$1"
+}
+
 ipinfo() {
 	curl http://ipinfo.io/$1
 }
@@ -132,7 +136,7 @@ killport() {
 
 # Find top 10 largest dirs
 # largest_dirs /home
-function largest_dirs {
+largest_dirs() {
   du -a "$1" | sort -n -r | head -n 10
 }
 
