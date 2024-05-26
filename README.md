@@ -24,11 +24,16 @@ Install the ansible-galaxy community collection:
 
 ### Todo list
 
+- [x] Add i3wm debian role
 - [x] i3wm workspace assignment for most used apps
-- [ ] choose and install a polybar theme
 - [x] sub rxvt with alacritty
-- [ ] find or makedecent colorscheme to make everything coherent (vim,tmux,i3,rofi)
+- [ ] Find or makedecent colorscheme to make everything coherent (vim,tmux,i3,rofi)
 - [ ] Add IOSevka nerdfonts to the i3 installation
+- [ ] Theme Rofi
+- [ ] Theme Polybar
+- [ ] Add wallpapers role
+- [ ] Add ThePrimagen's tmux workflow into environment
+- [ ] Add Neovim migration role for when I work locally
 
 ### Reference material
 
