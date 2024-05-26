@@ -60,10 +60,10 @@ set number
 set relativenumber
 
 "--- Tab and space default settings
-set tabstop=4
+set tabstop=2
 set noexpandtab
-set softtabstop=4
-set shiftwidth=4
+set softtabstop=2
+set shiftwidth=2
 
 "--- Error handling
 set vb
