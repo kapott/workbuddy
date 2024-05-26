@@ -1,0 +1,25 @@
+﻿---
+- name: Install nvm
+  git: repo=https://github.com/nvm-sh/nvm.git dest=~/.nvm version=v0.39.7
+  tags: nvm
+
+- name: Make sure we source nvm.sh and it's bash completion in ~/.bashrc
+  lineinfile: 
+    path: "{{ '~' | expanduser}}/.bashrc"
+    search_string: "{{ item.search }}"
+    line: "{{ item.line }}"
+    state: present
+    create: true
+  tags: nvm
+  with_items:
+    - { search: 'export NVM_DIR', line: 'export NVM_DIR="$HOME/.nvm"'}
+    - { search: 'NVM_DIR/nvm.sh', line: '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'}
+    - { search: 'NVM_DIR/bash_completion', line: '[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"'}
+
+- name: Make sure we install nvm using the install script
+  command: "sh -c {{ '~' | expanduser}}/.nvm/install.sh"
+
+- name: Install latest nodejs LTS
+  shell: |
+    NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm install --lts
+

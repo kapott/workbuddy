@@ -1,0 +1,19 @@
+﻿---
+- name: Download Fantasque font
+  ansible.builtin.unarchive:
+    src: https://github.com/belluzj/fantasque-sans/releases/download/v1.8.0/FantasqueSansMono-Normal.tar.gz
+    dest: "{{ '~' | expanduser }}/.local/share/fonts/"
+    remote_src: yes
+    list_files: yes
+
+- name: Copy TTF files to correct directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ '~' | expanduser }}/.local/share/fonts"
+  with_fileglob:
+    - "{{ '~' | expanduser}}/.local/share/fonts/TTF/*.ttf"
+    - "{{ '~' | expanduser}}/.local/share/fonts/TTF/*.TTF"
+
+- name: Update font cache
+  command: fc-cache -fv
+
