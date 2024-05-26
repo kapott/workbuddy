@@ -13,6 +13,7 @@
     state: present
   loop:
     - i3-gaps
+    - brigtnessctl
     - rofi
     - fontawesome-fonts
     - feh

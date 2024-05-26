@@ -2,6 +2,7 @@
 - name: Set up i3wm desktop environment.
   hosts: local
   roles:
+    - {role: polybar, tags: ['polybar']}
     - {role: i3wm, tags: ['i3wm']}
     #- {role: git, tags: ['git']}
     #- {role: vim, tags: ['vim, bootstrap']}

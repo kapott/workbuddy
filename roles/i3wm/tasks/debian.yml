@@ -6,6 +6,7 @@
   loop:
     - autoconf
     - build-essential
+    - brightnessctl
     - rofi
     - fonts-font-awesome
     - feh
