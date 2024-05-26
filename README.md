@@ -24,14 +24,11 @@ Install the ansible-galaxy community collection:
 
 ### Todo list
 
-- [ ] 
-- [ ] i3wm workspace assignment for most used apps
-- [ ] use and configure polybar
-- [ ] sub rxvt with alacritty
+- [x] i3wm workspace assignment for most used apps
+- [ ] choose and install a polybar theme
+- [x] sub rxvt with alacritty
 - [ ] find or makedecent colorscheme to make everything coherent (vim,tmux,i3,rofi)
-- [ ] find or make decent networking script / indicator for the statusbar
-- [ ] find or make decent sound device and volume control for statusbar
-- [ ] find or make a decent battery indicator for i3
+- [ ] Add IOSevka nerdfonts to the i3 installation
 
 ### Reference material
 
