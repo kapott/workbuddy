@@ -11,6 +11,7 @@
     - {role: tmux, tags: ['tmux', 'bootstrap']}
     - {role: fonts, tags: ['fonts']}
     - {role: nodejs, tags: ['nodejs']}
+    - {role: neovim-symlink, tags: ['neovim-symlink']}
 
     #- {role: package_manager, tags: ['package_manager', 'bootstrap']}
     #- {role: python, tags: ['python']}
