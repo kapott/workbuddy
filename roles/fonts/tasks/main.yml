@@ -1,4 +1,9 @@
 ﻿---
+- name: Ensure ~/.local/share/fonts dir exists..
+  ansible.builtin.file:
+    path: "{{ '~' | expanduser }}/.local/share/fonts"
+    state: directory
+
 - name: Download Fantasque font
   ansible.builtin.unarchive:
     src: https://github.com/belluzj/fantasque-sans/releases/download/v1.8.0/FantasqueSansMono-Normal.tar.gz
