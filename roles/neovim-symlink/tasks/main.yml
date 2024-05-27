@@ -1,0 +1,18 @@
+---
+- name: Ensure nvim config directories exist
+  file:
+    path: "{{ lookup('env', 'XDG_CONFIG_HOME') or default_config }}/nvim"
+    state: directory
+  vars:
+    default_config: "{{ '~' | expanduser }}/.config"
+
+- name: Link our migratory nvim config
+  file:
+    src: "{{ role_path }}/files/init.vim"
+    dest: "{{ lookup('env', 'XDG_CONFIG_HOME') or default_config }}/nvim/init.vim"
+    state: link
+  vars:
+    default_config: "{{ '~' | expanduser }}/.config"
+      
+- name: Install plugins
+  command: "vim +PluginInstall +qall"
