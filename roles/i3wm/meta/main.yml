@@ -1,3 +1,4 @@
 ﻿---
 dependencies:
   - role: polybar
+  - role: alacritty

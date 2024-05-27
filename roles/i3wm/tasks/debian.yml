@@ -4,6 +4,7 @@
     name: "{{ item }}"
     state: present
   loop:
+    - i3
     - autoconf
     - build-essential
     - brightnessctl
@@ -20,7 +21,7 @@
     - network-manager
   become: true
 
-- name: Check if fonts exist.
+- name: Ensure fonts dir exist...
   file:
     path: "{{ lookup('env', 'HOME') }}/.fonts"
     state: directory
@@ -36,6 +37,13 @@
     src: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.0/Hack.zip
     dest: "{{ lookup('env', 'HOME') }}/.fonts/"
     remote_src: true
+
+- name: Ensure i3 config dir exists..
+  file:
+    path:  "{{ lookup('ansible.builtin.env', 'XDG_CONFIG_HOME') or default_config }}/i3"
+    state: directory
+  vars:
+    default_config: "{{ '~' | expanduser }}/.config"
 
 - name: Link our i3 wm config.
   file:
