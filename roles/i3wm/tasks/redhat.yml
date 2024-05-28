@@ -48,15 +48,11 @@
 - name: Link our i3 wm config.
   file:
     src: "{{ role_path }}/files/i3wm-config"
-    dest: "{{ lookup('ansible.builtin.env', 'XDG_CONFIG_HOME') or default_config }}/i3/config"
+    dest: "{{ lookup('ansible.builtin.env', 'XDG_CONFIG_HOME') or default_config_dir }}/i3/config"
     state: link
-  vars: 
-    default_config: "{{ '~' | expanduser }}/.config"
 
 - name: Link our starship prompt config.
   file:
     src: "{{ role_path }}/files/starship.toml"
-    dest: "{{ lookup('ansible.builtin.env', 'XDG_CONFIG_HOME') or default_config }}/starship.toml"
+    dest: "{{ lookup('ansible.builtin.env', 'XDG_CONFIG_HOME') or default_config_dir }}/starship.toml"
     state: link
-  vars: 
-    default_config: "{{ '~' | expanduser }}/.config"

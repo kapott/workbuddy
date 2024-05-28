@@ -15,7 +15,5 @@
 - name: Link our alacritty config.
   file:
     src: "{{ role_path }}/files/alacritty.yml"
-    dest: "{{ lookup('ansible.builtin.env', 'XDG_CONFIG_HOME') or default_config }}/alacritty/alacritty.yml"
+    dest: "{{ lookup('ansible.builtin.env', 'XDG_CONFIG_HOME') or default_config_dir }}/alacritty/alacritty.yml"
     state: link
-  vars: 
-    default_config: "{{ '~' | expanduser }}/.config"
