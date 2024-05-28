@@ -31,7 +31,7 @@ Install the ansible-galaxy community collection:
 - [ ] Add IOSevka nerdfonts to the i3 installation
 - [ ] Theme Rofi
 - [ ] Theme Polybar
-- [ ] Add wallpapers role
+- [x] Add wallpapers role
 - [ ] Add ThePrimagen's tmux workflow into environment
 - [ ] Add Neovim migration role for when I work locally
 
