@@ -20,8 +20,6 @@
 - name: Link our polybar config.
   file:
     src: "{{ role_path }}/files/config.ini"
-    dest: "{{ lookup('ansible.builtin.env', 'XDG_CONFIG_HOME') or default_config }}/polybar/config.ini"
+    dest: "{{ lookup('ansible.builtin.env', 'XDG_CONFIG_HOME') or default_config_dir }}/polybar/config.ini"
     state: link
-  vars: 
-    default_config: "{{ '~' | expanduser }}/.config"
     
