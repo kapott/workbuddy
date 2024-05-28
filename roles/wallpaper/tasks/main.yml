@@ -1,0 +1,23 @@
+---
+- name: Ensure we have the right wallpapers directory
+  ansible.builtin.file:
+    path: "{{ lookup('env', 'XDG_CONFIG_HOME') or default_config_dir }}/wallpaper"
+    state: directory
+
+- name: Copy the wallpapers into the right directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ default_config_dir }}/wallpaper/"
+  with_fileglob:
+    - "wallpapers/*"
+
+- name: Copy the .fehbg file
+  file:
+    src: "{{ role_path }}/files/fehbg"
+    dest: "{{ dotfiles_user_home }}/.fehbg"
+    mode: 'u+rwx'
+    state: link
+    force: true
+
+- name: Execute the fehbg file
+  command: sh -c  ~/.fehbg
