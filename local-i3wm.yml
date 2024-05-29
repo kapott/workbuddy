@@ -3,5 +3,6 @@
   hosts: local
   roles:
     - {role: polybar, tags: ['polybar']}
+    - {role: fonts, tags: ['fonts', 'desktop']}
     - {role: i3wm, tags: ['i3wm']}
     - {role: wallpaper, tags: ['wallpaper']}
