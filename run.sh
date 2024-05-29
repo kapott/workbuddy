@@ -12,7 +12,7 @@ runIfExists() {
 }
 
 runIfExists "apt" "sudo apt update -y"
-runIfExists "apt" "sudo apt install curl build-essential ansible -y"
+runIfExists "apt" "sudo apt install curl git build-essential ansible -y"
 runIfExists "yum" "sudo yum upgrade -y"
 runIfExists "yum" "sudo yum install curl ansible -y"
 
