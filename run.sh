@@ -12,8 +12,8 @@ runIfExists() {
 }
 
 runIfExists "apt" "sudo apt update -y"
-runIfExists "apt" "sudo apt install wget curl ansible -y"
-runIfExists "yum" "sudo yum update -y"
-runIfExists "yum" "sudo yum install wget curl ansible -y"
+runIfExists "apt" "sudo apt install curl build-essential ansible -y"
+runIfExists "yum" "sudo yum upgrade -y"
+runIfExists "yum" "sudo yum install curl ansible -y"
 
 ansible-pull -t terminal -U https://github.com/Kapott/workbuddy/local-tools.yml 
