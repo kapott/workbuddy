@@ -2,14 +2,13 @@
 - name: Set up local sysadmin tooling.
   hosts: local
   roles:
-    - {role: git, tags: ['git'], 'terminal'}
-    - {role: vim, tags: ['vim', 'terminal']}
-    - {role: rg, tags: ['rg'], 'terminal'}
-    - {role: fzf, tags: ['fzf'], 'terminal'}
-    - {role: curl, tags: ['curl'], 'terminal'}
-    - {role: bash, tags: ['bash'], 'terminal'}
-    - {role: tmux, tags: ['tmux'], 'terminal'}
-    - {role: fonts, tags: ['fonts']}
+    - {role: git, tags: ['git', 'base']}
+    - {role: vim, tags: ['vim', 'base']}
+    - {role: rg, tags: ['rg', 'base']}
+    - {role: fzf, tags: ['fzf', 'base']}
+    - {role: curl, tags: ['curl', 'base']}
+    - {role: bash, tags: ['bash', 'base']}
+    - {role: tmux, tags: ['tmux', 'base']}
     - {role: nodejs, tags: ['nodejs']}
     - {role: neovim-symlink, tags: ['neovim-symlink']}
 
