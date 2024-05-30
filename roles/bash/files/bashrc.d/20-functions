@@ -194,7 +194,7 @@ reverse() {
 }
 
 # When you want to save a file, so you have a way to recover.
-function save {
+save() {
 	mv "$1" "$1_$(date +%F)"
 }
 
