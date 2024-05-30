@@ -198,6 +198,18 @@ save() {
 	mv "$1" "$1_$(date +%F)"
 }
 
+pom() {
+	timer 25m && ((POM+=1))
+}
+br() {
+	timer 5m
+}
+longbr() {
+	timer 30m
+}
+work() {
+	pom && br && pom && br && pom && br && pom && longbr
+}
 # tunnelfrom tunnels a remote port to the local machine
 # be sure to set up your keys and other settings in your ~/.ssh/config
 # (e.g. non-standard ports, hostnames etc)
