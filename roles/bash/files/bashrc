@@ -29,3 +29,8 @@ unset rc
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+
+bind 'set show-all-if-ambiguous on'
+bind 'TAB:menu-complete'
+bind '"\e[Z":menu-complete-backward'
+if [ -f "/home/therder/.config/fabric/fabric-bootstrap.inc" ]; then . "/home/therder/.config/fabric/fabric-bootstrap.inc"; fi
