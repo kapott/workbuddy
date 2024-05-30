@@ -1,0 +1,18 @@
+---
+#https://github.com/caarlos0/timer/releases/download/v1.4.1/timer_1.4.1_amd64.deb
+
+- name: Create temp dir for downloading the apt
+  ansible.builtin.tempfile:
+    state: "directory"
+    suffix: "_dl"
+  register: temp_dir
+
+- name: Download the timer .deb file
+  get_url:
+    url: https://github.com/caarlos0/timer/releases/download/v1.4.1/timer_1.4.1_amd64.deb
+    dest: "{{ temp_dir.path }}/timer.deb"
+
+- name: Install the timer from the downloaded deb file
+  apt:
+    deb: "{{ temp_dir.path }}/timer.deb"
+  become: true
