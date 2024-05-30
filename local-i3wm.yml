@@ -6,3 +6,4 @@
     - {role: fonts, tags: ['fonts', 'desktop']}
     - {role: i3wm, tags: ['i3wm']}
     - {role: wallpaper, tags: ['wallpaper']}
+    - {role: starship, tags: ['starship']}
