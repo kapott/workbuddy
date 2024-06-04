@@ -205,7 +205,8 @@ set $blue #66d9ef
 set $white #d6d6d6
 set $yellow #e5b567
 #set $green #b4d273
-set $green #a6e22e
+set $green #023020
+#set $green #a6e22e
 #set $orange #e87d3e
 set $orange #fd971f
 #set $purple #9e86c8
@@ -215,7 +216,7 @@ set $pink #f92672
 set $blue #6c99bb
 
 # item                  border      background  text        indicator child border
-client.focused	        $green      $background $green      $green    $green
+client.focused	        $orange $background $orange $orange $orange
 client.focused_inactive $background $background $white      #484e50   #5f676a
 client.unfocused        $background $background $comment    #292d2e   #222222
 client.urgent           $pink       $pink       $whtie      $pink     $pink
