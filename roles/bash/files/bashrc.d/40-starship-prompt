@@ -50,4 +50,4 @@ esac
 export STARSHIP_DISTRO="$ICON"
 export STARSHIP_DEVICE="$DEVICE"
 
-eval "$(starship init bash)"
+command -v starship && eval "$(starship init bash)"
