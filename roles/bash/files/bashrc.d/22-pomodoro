@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+export POM="${POM:-0}"
+export POM_LEN_MIN="25"
+export SHORT_BREAK="5"
+export LONG_BREAK="30"
+
+if ! command -v timer &> /dev/null
+then
+	echo "Timer command has not been installed."
+	echo "Go get it: https://github.com/caarlos0/timer/"
+	exit 1;
+fi
+
+work() {
+	echo "Starting pomodoro: $((POM+1))"
+	timer "${POM_LEN_MIN}m" && ((POM+=1)) || echo "Cancelled pomodoro."
+}
+
+br() {
+	timer "${SHORT_BREAK}m"
+	echo "Short break ($SHORT_BREAK)"
+}
+
+longbr() {
+	timer "${LONG_BREAK}m"
+	echo "Long break, move a bit. ($LONG_BREAK)"
+}
+
