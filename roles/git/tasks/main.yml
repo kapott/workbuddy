@@ -4,6 +4,7 @@
     src: "{{ repo_home }}/roles/git/files/gitconfig"
     dest: "{{ dotfiles_user_home }}/.gitconfig"
     state: link
+    force: true
 
 - import_tasks: arch.yml
   when: ansible_os_family == "Archlinux"
