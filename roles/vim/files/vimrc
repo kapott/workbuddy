@@ -149,6 +149,23 @@ endfunction
 " <F5> Strips all trailing whitespaces
 nnoremap <silent> <F5> :call <SID>StripTrailingWhitespaces()<CR>
 
+" <leader>gf - create file under cursor, like gf does for 'go to file under cursor'
+noremap <leader>gf :call CreateFile(expand("<cfile>"))<CR>
+function! CreateFile(tfilename)
+    " complete filepath from the file where this is called
+    let newfilepath=expand('%:p:h') .'/'. expand(a:tfilename)
+
+    if filereadable(newfilepath)
+       echo "File already exists"
+       :norm gf
+    else
+        :execute "!touch ". expand(newfilepath)
+        echom "File created: ". expand(newfilepath)
+        :norm gf
+		endif
+endfunction
+
+
 " Upon closing these files, auto-remove whitespaces
 " autocmd BufWritePre * :call <SID>StripTrailingWhitespaces()
 
