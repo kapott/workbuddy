@@ -24,6 +24,7 @@
     src: "{{ repo_home }}/roles/vim/files/vimrc"
     dest: "{{ dotfiles_user_home }}/.vimrc"
     state: link
+    force: true
 
 - name: Clone Vundle into place...
   git:
