@@ -12,5 +12,7 @@
     - {role: nodejs, tags: ['nodejs']}
     - {role: neovim-symlink, tags: ['neovim-symlink']}
     - {role: timer, tags: ['timer']}
+    - {role: fish, tags: ['fish']}
+
 
 

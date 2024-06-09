@@ -1,0 +1,34 @@
+﻿---
+
+- name: Install fish shell using homebrew.
+  community.general.homebrew:
+    name: fish
+    state: present
+
+- name: Find out where we installed the fish shell
+  shell: which fish
+  register: fish_location
+
+- name: Delete existing fisher installer file to work around strange mac behavior
+  file:
+    path: "{{ dotfiles_user_home }}/.ansible/tmp/fisher-installer.fish"
+    state: absent
+
+- name: Curl the fisher package manager installation script
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish
+    dest: "{{ dotfiles_user_home }}/.ansible/tmp/fisher-installer.fish"
+    mode: 777
+    force: true
+
+- name: Run the fisher installation script..
+  shell: "{{ fish_location.stdout }} {{ dotfiles_user_home }}/.ansible/tmp/fisher-installer.fish"
+
+- name: And install some plugins please...
+  shell: "fisher install {{ item }}"
+  args: 
+    executable: "{{ fish_location.stdout }}"
+  loop:
+    - "jethrokuan/z"
+    - "jorgebucaran/replay.fish"
+    - "jorgebucaran/spark.fish"
