@@ -1,0 +1,39 @@
+---
+
+- name: Install zsh
+  apt:
+    name: zsh
+    state: latest
+  become: true
+
+- name: Make sure the user zsh dir exists.
+  file:
+    name: "{{ dotfiles_user_home }}/.zsh"
+    state: directory
+
+- name: Download oh-my-zsh installer file.
+  get_url: 
+    url: "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+    dest: "/tmp/install-omz.sh"
+    mode: "777"
+    force: true
+
+- name: Run oh-my-zsh installer.
+  shell: "/tmp/install-omz.sh"
+  args:
+    creates: "{{ dotfiles_user_home }}/.oh-my-zsh/README.md"
+
+- name: Enable the omz modules we like.
+  lineinfile:
+    path: "{{ dotfiles_user_home }}/.zshrc"
+    regexp: "^plugins"
+    line: "plugins=(git z docker fzf podman kubectl)"
+
+- name: Configure our prompt.
+  lineinfile:
+    path: "{{ dotfiles_user_home }}/.zshrc"
+    regexp: "^ZSH_THEME"
+    line: "ZSH_THEME=refined"
+
+
+
