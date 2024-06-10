@@ -34,6 +34,9 @@ Install the ansible-galaxy community collection:
 - [x] Add wallpapers role
 - [ ] Add ThePrimagen's tmux workflow into environment
 - [ ] Add Neovim migration role for when I work locally
+- [ ] Rewrite all scripts to be posix compliant so I can s/bash/dash/g or s/dash/zsh/
+- [ ] Add zsh and oh-my-zsh (for now! will selfbuild own zsh config in time)
+- [ ] Replace every OS I install this on with Emacs
 
 ### Reference material
 
