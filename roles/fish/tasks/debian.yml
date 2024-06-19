@@ -1,3 +1,53 @@
---
-- name: Install fish shell.
+---
+
+- name: Copy the repository file to the correct dir..
+  copy:
+    src: "fish.apt"
+    dest: "/etc/apt/sources.list.d/shells:fish:release:3.list"
+  become: true
+
+- name: Download fish gpg key for fish repository
+  get_url:
+    url: "https://download.opensuse.org/repositories/shells:fish:release:3/Debian_12/Release.key"
+    dest: /tmp/fish-3-gpg
+
+- name: Dearmor GPG key for fish repository
+  shell: "gpg --dearmor < /tmp/fish-3-gpg -o /etc/apt/trusted.gpg.d/shells_fish_release_3.gpg"
+  become: true
+
+- name: Update apt and install fish shell
   apt:
+    name: fish
+    state: present
+    update_cache: true
+  become: true
+
+- name: Find out where we installed the fish shell
+  shell: which fish
+  register: fish_location
+
+
+- name: change user shell to zsh 
+  become: yes
+  user:
+    name: "therder"
+    shell: "{{ fish_location.stdout }}"
+
+- name: Curl the fisher package manager installation script
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish"
+    dest: "/tmp/fisher-installer.fish"
+    mode: 777
+    force: true
+
+- name: Run the fisher installation script..
+  shell: "{{ fish_location.stdout }} /tmp/fisher-installer.fish"
+
+- name: And install some plugins please...
+  shell: "fisher install {{ item }}"
+  args: 
+    executable: "{{ fish_location.stdout }}"
+  loop:
+    - "jethrokuan/z"
+    - "jorgebucaran/replay.fish"
+    - "jorgebucaran/spark.fish"
