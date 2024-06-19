@@ -7,9 +7,3 @@ XDG_CACHE_HOME=$HOME/.cache
 XDG_CONFIG_HOME=$HOME/.config
 XDG_DATA_HOME=$HOME/.local/share
 XDG_STATE_HOME=$HOME/.local/state
-
-trap '
-   _LASTCOM="$(history 1 | sed "s/^[ ]*[0-9]*[ ]*//g")"
-   printf "\e]0;%s\a" "$_LASTCOM"
-   ' DEBUG
-PS1='\[\e]0;*$_LASTCOM\a\]\n\[\e[32m\]\u@\h \[\e[33m\]\w\[\e[0m\]\n\$ '

@@ -12,11 +12,11 @@
     state: link
   loop:
     - "00-env"
+    - "01-prompt"
     - "10-aliases"
     - "20-functions"
     - "21-update"
     - "30-settings"
-    - "40-starship-prompt"
     - "99-z"
 
 - name: Check if bashrc exists
