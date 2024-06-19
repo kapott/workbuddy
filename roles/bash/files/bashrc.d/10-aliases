@@ -34,10 +34,12 @@ alias ffs='sudo !!'
 
 # systemd shenanigans
 alias s='systemctl'
-alias stimers='systemctl list-timers --all'
+alias scat='systemctl cat'
+alias sstat='systemctl status'
 alias srl='systemctl reload'
 alias sstop='systemctl stop'
 alias sstart='systemctl start'
+alias stimers='systemctl list-timers --all'
 alias aan='sstart'
 alias uit='sstop'
 alias log='journalctl -eu'
