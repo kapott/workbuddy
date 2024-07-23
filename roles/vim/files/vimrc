@@ -34,7 +34,7 @@ Plugin 'dag/vim-fish'
 call vundle#end()
 
 "--- Legibility & usability
-let &showbreak='↪ '
+let &showbreak='\u21aa '
 set listchars=tab:→\ ,eol:↲,nbsp:␣,trail:•,extends:⟩,precedes:⟨
 let mapleader = " "
 let g:mapleader = " "
