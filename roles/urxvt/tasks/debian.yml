@@ -1,0 +1,20 @@
+---
+- name: Install urxvt and optional packages
+  apt:
+    name: "{{ item }}"
+    state: latest
+  become: true
+  loop:
+    - "rxvt-unicode"
+    - "xsel"
+
+- name: Symlink .Xresources
+  file:
+    src: "{{ role_path }}/files/Xresources"
+    dest: "{{ dotfiles_user_home }}/.Xresources"
+    state: link
+    force: true
+
+- name: Run "xrdb" to merge the Xresources into the current settings.
+  shell: "xrdb -merge ~/.Xresources"
+  
