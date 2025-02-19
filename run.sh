@@ -21,4 +21,4 @@ export ANSIBLE_LOG_PATH=/tmp/ansible.log
 
 TEMP_DIR=$(mktemp -d)
 ansible-pull -i localhost -U https://github.com/Kapott/workbuddy -d "$TEMP_DIR"
-#rm -rf "$TEMP_DIR"
+rm -rf "$TEMP_DIR"
