@@ -16,4 +16,4 @@ runIfExists "apt" "sudo apt install curl git build-essential ansible -y"
 runIfExists "yum" "sudo yum upgrade -y"
 runIfExists "yum" "sudo yum install curl ansible -y"
 
-ansible-pull -t terminal -U https://github.com/Kapott/workbuddy/local-tools.yml 
+ansible-pull -t terminal -U https://github.com/Kapott/workbuddy
