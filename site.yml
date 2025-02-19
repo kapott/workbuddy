@@ -1,6 +1,6 @@
 ---
 - name: Set up local sysadmin tooling.
-  hosts: local
+  hosts: localhost
   roles:
     - {role: git, tags: ['git', 'base']}
     - {role: vim, tags: ['vim', 'base']}
