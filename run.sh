@@ -18,7 +18,7 @@ runIfExists "yum" "sudo yum install curl ansible -y"
 
 export ANSIBLE_LOG_PATH=/tmp/ansible.log
 
+BUDDY_DIR="${1:-$HOME/.config/workbuddy}"
+mkdir -p $BUDDY_DIR
+ansible-pull -i localhost -U https://github.com/kapott/workbuddy -d "$BUDDY_DIR"
 
-TEMP_DIR=$(mktemp -d)
-ansible-pull -i localhost -U https://github.com/Kapott/workbuddy -d "$TEMP_DIR"
-rm -rf "$TEMP_DIR"
