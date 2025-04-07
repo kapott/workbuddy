@@ -5,7 +5,8 @@ shopt -s globstar;
 shopt -s histappend;
 shopt -s cdspell;
 
-bind 'set completion-ignore-case on' # TAB complete is now case insensitive.
+# Line below commented because line-editing isn't always enabled.
+# bind 'set completion-ignore-case on' # TAB complete is now case insensitive.
 
 # Use rg if we have it, else tell fzf we want to show hidden files with find
 command -v rg >/dev/null 2>&1 && export FZF_DEFAULT_COMMAND="rg --files --hidden"
