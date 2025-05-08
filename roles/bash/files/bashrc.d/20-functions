@@ -36,7 +36,10 @@ crtsh(){
 		grep "$grep_domain" | \
 		grep -v 'LIKE' | \
 		grep -v 'crt.sh | %' | \
-		tr -d ' '
+        sed 's/<[^>]*>/ /g' | \
+        tr -s '[:space:]' '\n' | \
+        sort -u | \
+        grep -viE '^(\&nbsp;|after|at|issuer|not|before|after|serial|number|ID|CA|common|name|dns|public|crt\.sh|group|logged|by)$'
 }
 
 certnmap(){
