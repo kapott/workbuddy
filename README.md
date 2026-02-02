@@ -35,7 +35,7 @@ chezmoi apply -v
 - `.gitconfig` (aliases, colors, URL shortcuts)
 - `.mise.toml` (tool versions)
 - `.config/starship.toml` (cross-shell prompt)
-- `.config/alacritty/` (terminal emulator)
+- `.config/kitty/` (terminal emulator)
 - `.config/i3/` (window manager - Linux only)
 - `.config/polybar/` (status bar - Linux only)
 - `.config/nvim/` (neovim sources vimrc)
@@ -141,7 +141,7 @@ workbuddy/
 │   ├── dot_mise.toml           # -> ~/.mise.toml
 │   ├── private_dot_config/     # -> ~/.config/
 │   │   ├── starship.toml
-│   │   ├── private_alacritty/
+│   │   ├── private_kitty/
 │   │   ├── private_i3/
 │   │   ├── private_polybar/
 │   │   └── private_nvim/

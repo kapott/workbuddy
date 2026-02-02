@@ -137,23 +137,39 @@
     defaultCommand = "rg --files --hidden";
   };
 
-  # Alacritty terminal
-  programs.alacritty = {
+  # Kitty terminal
+  programs.kitty = {
     enable = true;
+    font = {
+      name = "Hack Nerd Font Mono";
+      size = 16;
+    };
     settings = {
-      window = {
-        padding = { x = 8; y = 0; };
-      };
-      font = {
-        normal = { family = "Hack Nerd Font Mono"; style = "Regular"; };
-        size = 16.0;
-      };
-      colors = {
-        primary = {
-          background = "#2c2525";
-          foreground = "#fff1f3";
-        };
-      };
+      window_padding_width = 8;
+      scrollback_lines = 10000;
+      enable_audio_bell = false;
+      cursor_shape = "block";
+      cursor_blink_interval = 0;
+      copy_on_select = "clipboard";
+      # Monokai Pro colors
+      foreground = "#fff1f3";
+      background = "#2c2525";
+      color0 = "#2c2525";
+      color8 = "#72696a";
+      color1 = "#fd6883";
+      color9 = "#fd6883";
+      color2 = "#adda78";
+      color10 = "#adda78";
+      color3 = "#f9cc6c";
+      color11 = "#f9cc6c";
+      color4 = "#f38d70";
+      color12 = "#f38d70";
+      color5 = "#a8a9eb";
+      color13 = "#a8a9eb";
+      color6 = "#85dacc";
+      color14 = "#85dacc";
+      color7 = "#fff1f3";
+      color15 = "#fff1f3";
     };
   };
 
