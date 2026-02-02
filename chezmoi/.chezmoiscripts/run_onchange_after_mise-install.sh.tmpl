@@ -1,0 +1,24 @@
+#!/bin/bash
+# Install/sync mise tools when .mise.toml changes
+# hash: {{ include "dot_mise.toml" | sha256sum }}
+
+set -e
+
+# Ensure mise is in PATH
+export PATH="$HOME/.local/bin:$PATH"
+
+if ! command -v mise &> /dev/null; then
+    echo "mise not found, skipping tool installation"
+    exit 0
+fi
+
+echo "Installing mise tools from ~/.mise.toml..."
+
+# Trust the config file
+mise trust "$HOME/.mise.toml" 2>/dev/null || true
+
+# Install all tools
+mise install
+
+echo "mise tools installed successfully!"
+mise list

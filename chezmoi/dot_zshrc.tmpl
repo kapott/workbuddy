@@ -1,0 +1,70 @@
+# Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+
+# Set theme
+ZSH_THEME="refined"
+
+# Plugins (Full DevOps setup)
+plugins=(
+    git
+    z
+    fzf
+    kubectl
+    helm
+    docker
+    podman
+    aws
+    terraform
+    ansible
+)
+
+source $ZSH/oh-my-zsh.sh
+
+# User configuration
+
+# Source shared bash aliases and functions from .bashrc.d/
+if [ -d ~/.bashrc.d ]; then
+    for rc in ~/.bashrc.d/10-aliases ~/.bashrc.d/20-functions ~/.bashrc.d/21-update; do
+        if [ -e "$rc" ]; then
+            . "$rc"
+        fi
+    done
+fi
+
+# Environment variables
+export EDITOR=vim
+export VISUAL=vim
+export TERMINAL=alacritty
+export BROWSER=firefox
+
+# XDG Base Directory Specification
+export XDG_CACHE_HOME=$HOME/.cache
+export XDG_CONFIG_HOME=$HOME/.config
+export XDG_DATA_HOME=$HOME/.local/share
+export XDG_STATE_HOME=$HOME/.local/state
+
+# PATH additions
+if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]; then
+    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+fi
+export PATH
+
+# Homebrew (macOS Apple Silicon)
+{{ if eq .chezmoi.os "darwin" }}
+if [ -d "/opt/homebrew" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+{{ end }}
+
+# Activate mise for tool version management
+if command -v mise &> /dev/null; then
+    eval "$(mise activate zsh)"
+fi
+
+# Use rg for fzf if available
+command -v rg >/dev/null 2>&1 && export FZF_DEFAULT_COMMAND="rg --files --hidden"
+
+# Starship prompt (if installed, overrides ZSH_THEME)
+if command -v starship &> /dev/null; then
+    eval "$(starship init zsh)"
+fi

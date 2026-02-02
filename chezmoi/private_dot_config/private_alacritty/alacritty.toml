@@ -1,0 +1,140 @@
+# Alacritty configuration (TOML format for modern versions)
+
+[window]
+padding = { x = 8, y = 0 }
+dynamic_padding = false
+decorations = "full"
+startup_mode = "Windowed"
+
+[scrolling]
+history = 10000
+multiplier = 3
+
+[font]
+normal = { family = "Hack Nerd Font Mono", style = "Regular" }
+bold = { family = "Hack Nerd Font Mono", style = "Bold" }
+italic = { family = "Hack Nerd Font Mono", style = "Italic" }
+size = 16.0
+
+[font.offset]
+x = 0
+y = 0
+
+[font.glyph_offset]
+x = 0
+y = 0
+
+# Colors (Monokai Pro)
+[colors.primary]
+background = "#2c2525"
+foreground = "#fff1f3"
+
+[colors.normal]
+black = "#2c2525"
+red = "#fd6883"
+green = "#adda78"
+yellow = "#f9cc6c"
+blue = "#f38d70"
+magenta = "#a8a9eb"
+cyan = "#85dacc"
+white = "#fff1f3"
+
+[colors.bright]
+black = "#72696a"
+red = "#fd6883"
+green = "#adda78"
+yellow = "#f9cc6c"
+blue = "#f38d70"
+magenta = "#a8a9eb"
+cyan = "#85dacc"
+white = "#fff1f3"
+
+[bell]
+animation = "EaseOutExpo"
+duration = 0
+color = "#ffffff"
+
+[selection]
+semantic_escape_chars = ",|`|:\"' ()[]{}<>"
+save_to_clipboard = false
+
+[cursor]
+style = { shape = "Block", blinking = "Off" }
+unfocused_hollow = true
+
+[mouse]
+hide_when_typing = false
+
+[[mouse.bindings]]
+mouse = "Middle"
+action = "PasteSelection"
+
+[terminal]
+osc52 = "CopyPaste"
+
+# Key bindings
+[[keyboard.bindings]]
+key = "Paste"
+action = "Paste"
+
+[[keyboard.bindings]]
+key = "Copy"
+action = "Copy"
+
+[[keyboard.bindings]]
+key = "L"
+mods = "Control"
+action = "ClearLogNotice"
+
+[[keyboard.bindings]]
+key = "L"
+mods = "Control"
+chars = "\u000C"
+
+[[keyboard.bindings]]
+key = "PageUp"
+mods = "Shift"
+action = "ScrollPageUp"
+mode = "~Alt"
+
+[[keyboard.bindings]]
+key = "PageDown"
+mods = "Shift"
+action = "ScrollPageDown"
+mode = "~Alt"
+
+# tmux key bindings (Cmd+key)
+[[keyboard.bindings]]
+key = "T"
+mods = "Command"
+chars = "\u0002%"
+
+[[keyboard.bindings]]
+key = "T"
+mods = "Command|Shift"
+chars = "\u0002\""
+
+[[keyboard.bindings]]
+key = "W"
+mods = "Command"
+chars = "\u0004"
+
+[[keyboard.bindings]]
+key = "H"
+mods = "Command"
+chars = "\u0002\u001B[D"
+
+[[keyboard.bindings]]
+key = "J"
+mods = "Command"
+chars = "\u0002\u001B[B"
+
+[[keyboard.bindings]]
+key = "K"
+mods = "Command"
+chars = "\u0002\u001B[A"
+
+[[keyboard.bindings]]
+key = "L"
+mods = "Command"
+chars = "\u0002\u001B[C"
