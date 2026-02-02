@@ -1,0 +1,44 @@
+# Mako notification daemon configuration
+
+# Display
+max-visible=5
+sort=-time
+layer=overlay
+anchor=top-right
+
+# Appearance
+font=Hack Nerd Font Mono 12
+background-color=#282A2E
+text-color=#C5C8C6
+width=300
+height=100
+margin=10
+padding=10
+border-size=2
+border-color=#F0C674
+border-radius=6
+
+# Behavior
+default-timeout=5000
+ignore-timeout=0
+
+# Icons
+icons=1
+max-icon-size=64
+icon-path=/usr/share/icons/hicolor
+
+# Actions
+on-button-left=dismiss
+on-button-middle=none
+on-button-right=dismiss-all
+
+# Urgency levels
+[urgency=low]
+border-color=#707880
+
+[urgency=normal]
+border-color=#F0C674
+
+[urgency=critical]
+border-color=#A54242
+default-timeout=0

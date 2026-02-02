@@ -1,29 +1,28 @@
 { config, pkgs, ... }:
 
 {
-  # X11 and Display Manager
-  services.xserver = {
+  # Enable Sway (Wayland compositor)
+  programs.sway = {
     enable = true;
+    wrapperFeatures.gtk = true;
+    extraPackages = with pkgs; [
+      swaylock
+      swayidle
+      swaybg
+      waybar
+      wofi
+      mako
+      grim
+      slurp
+      wl-clipboard
+      wlr-randr
+    ];
+  };
 
-    # Display manager
-    displayManager.lightdm.enable = true;
-
-    # i3 window manager
-    windowManager.i3 = {
-      enable = true;
-      extraPackages = with pkgs; [
-        i3status
-        i3lock
-        dmenu
-        rofi
-      ];
-    };
-
-    # Keyboard layout
-    xkb = {
-      layout = "us";
-      variant = "";
-    };
+  # Keyboard layout for Sway
+  services.xserver.xkb = {
+    layout = "us";
+    variant = "";
   };
 
   # Enable touchpad support
@@ -57,34 +56,15 @@
     # Terminal emulator
     kitty
 
-    # Status bar
-    polybar
-
-    # Application launcher
-    rofi
-
     # Notifications
-    dunst
     libnotify
-
-    # Compositor
-    picom
-
-    # Wallpaper
-    feh
-    nitrogen
-
-    # Screenshot
-    flameshot
-    scrot
 
     # File manager
     pcmanfm
     xfce.thunar
 
     # Image viewer
-    feh
-    sxiv
+    imv
 
     # PDF viewer
     zathura
@@ -100,10 +80,8 @@
     pavucontrol
 
     # Utilities
-    xclip
-    xsel
-    arandr  # Display configuration
     lxappearance  # GTK theme settings
+    brightnessctl
 
     # Network
     networkmanagerapplet
@@ -115,18 +93,34 @@
   # Thumbnail support
   services.tumbler.enable = true;
 
-  # Screen locker
-  programs.xss-lock = {
-    enable = true;
-    lockerCommand = "${pkgs.i3lock}/bin/i3lock -c 000000";
-  };
-
   # Dconf for GTK apps
   programs.dconf.enable = true;
 
-  # XDG portal for screen sharing etc.
+  # XDG portal for Wayland screen sharing etc.
   xdg.portal = {
     enable = true;
+    wlr.enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  };
+
+  # Environment variables for Wayland
+  environment.sessionVariables = {
+    MOZ_ENABLE_WAYLAND = "1";
+    XDG_CURRENT_DESKTOP = "sway";
+    XDG_SESSION_TYPE = "wayland";
+  };
+
+  # Polkit for authentication dialogs
+  security.polkit.enable = true;
+
+  # GREETD display manager for Wayland
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd sway";
+        user = "greeter";
+      };
+    };
   };
 }
