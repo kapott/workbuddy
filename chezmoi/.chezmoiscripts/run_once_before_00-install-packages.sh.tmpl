@@ -32,25 +32,25 @@ case "$DISTRO" in
         echo "Installing packages via apt..."
         sudo apt update
         sudo apt install -y git vim tmux zsh curl
-        # Desktop packages (only if X11 is available)
-        if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
-            sudo apt install -y i3 polybar rofi dunst kitty feh picom
+        # Desktop packages (Wayland/Sway)
+        if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] || [ -n "$XDG_SESSION_TYPE" ]; then
+            sudo apt install -y sway waybar wofi mako-notifier kitty grim slurp wl-clipboard swaylock swayidle swaybg
         fi
         ;;
     fedora)
         echo "Installing packages via dnf..."
         sudo dnf install -y git vim tmux zsh curl
-        # Enable COPR for i3-gaps if needed
-        if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
-            sudo dnf copr enable -y fuhrmann/i3-gaps || true
-            sudo dnf install -y i3-gaps polybar rofi dunst kitty feh picom
+        # Desktop packages (Wayland/Sway)
+        if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] || [ -n "$XDG_SESSION_TYPE" ]; then
+            sudo dnf install -y sway waybar wofi mako kitty grim slurp wl-clipboard swaylock swayidle swaybg
         fi
         ;;
     arch|manjaro)
         echo "Installing packages via pacman..."
         sudo pacman -Syu --noconfirm git vim tmux zsh curl
-        if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
-            sudo pacman -S --noconfirm i3-gaps polybar rofi dunst kitty feh picom
+        # Desktop packages (Wayland/Sway)
+        if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] || [ -n "$XDG_SESSION_TYPE" ]; then
+            sudo pacman -S --noconfirm sway waybar wofi mako kitty grim slurp wl-clipboard swaylock swayidle swaybg
         fi
         ;;
     nixos)

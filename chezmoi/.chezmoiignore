@@ -8,8 +8,9 @@ nixos/
 # OS-specific ignores
 {{ if ne .chezmoi.os "linux" }}
 .Xresources
-.config/i3/
-.config/polybar/
+.config/sway/
+.config/waybar/
+.config/mako/
 {{ end }}
 
 {{ if ne .chezmoi.os "darwin" }}

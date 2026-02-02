@@ -36,8 +36,9 @@ chezmoi apply -v
 - `.mise.toml` (tool versions)
 - `.config/starship.toml` (cross-shell prompt)
 - `.config/kitty/` (terminal emulator)
-- `.config/i3/` (window manager - Linux only)
-- `.config/polybar/` (status bar - Linux only)
+- `.config/sway/` (Wayland compositor - Linux only)
+- `.config/waybar/` (status bar - Linux only)
+- `.config/mako/` (notification daemon - Linux only)
 - `.config/nvim/` (neovim sources vimrc)
 - `.Xresources` (urxvt theme - Linux only)
 
@@ -79,7 +80,7 @@ sudo nixos-rebuild switch --flake /etc/nixos#legion
 ### NixOS Features
 - AMD Ryzen 5800H support with microcode updates
 - NVIDIA hybrid graphics (PRIME offload mode)
-- i3 window manager with polybar
+- Sway Wayland compositor with waybar
 - Power management via TLP and thermald
 - Home Manager for user configuration
 
@@ -94,7 +95,7 @@ ansible-playbook local-tools.yml -i ./inventories/localhost --ask-become-pass
 # Install only certain tools
 ansible-playbook local-tools.yml -i ./inventories/localhost --tags vim,tmux --ask-become-pass
 
-# Install i3wm desktop
+# Install desktop (legacy i3wm)
 ansible-playbook local-i3wm.yml -i ./inventories/localhost --ask-become-pass
 ```
 
@@ -142,8 +143,9 @@ workbuddy/
 │   ├── private_dot_config/     # -> ~/.config/
 │   │   ├── starship.toml
 │   │   ├── private_kitty/
-│   │   ├── private_i3/
-│   │   ├── private_polybar/
+│   │   ├── private_sway/
+│   │   ├── private_waybar/
+│   │   ├── private_mako/
 │   │   └── private_nvim/
 │   ├── private_dot_Xresources  # -> ~/.Xresources
 │   └── nixos/                  # NixOS flake (not applied by chezmoi)
@@ -171,9 +173,11 @@ workbuddy/
 - `Space-gst` - Git status
 - `Space-gp` - Git push
 
-### i3 (mod: Super/Windows key)
-- `mod+Return` - Terminal (alacritty)
-- `mod+Space` - Rofi launcher
+### Sway (mod: Super/Windows key)
+- `mod+Return` - Terminal (kitty)
+- `mod+Space` - Wofi launcher
 - `mod+h/j/k/l` - Navigate windows
 - `mod+|` / `mod+-` - Split horizontal/vertical
 - `mod+z` - Fullscreen
+- `Print` - Screenshot to clipboard
+- `mod+Print` - Screenshot region to clipboard
