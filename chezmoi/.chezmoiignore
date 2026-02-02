@@ -1,0 +1,17 @@
+# Ignore README and documentation
+README.md
+LICENSE
+
+# Ignore NixOS files (applied separately via nixos-rebuild)
+nixos/
+
+# OS-specific ignores
+{{ if ne .chezmoi.os "linux" }}
+.Xresources
+.config/i3/
+.config/polybar/
+{{ end }}
+
+{{ if ne .chezmoi.os "darwin" }}
+# macOS-specific files
+{{ end }}

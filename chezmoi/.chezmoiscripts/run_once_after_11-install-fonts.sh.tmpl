@@ -1,0 +1,44 @@
+#!/bin/bash
+# Install Hack Nerd Font
+
+set -e
+
+{{ if eq .chezmoi.os "darwin" }}
+# macOS: Install via Homebrew
+if brew list --cask font-hack-nerd-font &> /dev/null; then
+    echo "Hack Nerd Font is already installed"
+    exit 0
+fi
+
+echo "Installing Hack Nerd Font via Homebrew..."
+brew tap homebrew/cask-fonts 2>/dev/null || true
+brew install --cask font-hack-nerd-font
+
+{{ else if eq .chezmoi.os "linux" }}
+# Linux: Install to user fonts directory
+FONT_DIR="$HOME/.local/share/fonts/NerdFonts"
+
+if fc-list | grep -qi "Hack Nerd Font"; then
+    echo "Hack Nerd Font is already installed"
+    exit 0
+fi
+
+echo "Installing Hack Nerd Font..."
+mkdir -p "$FONT_DIR"
+
+# Download and extract Hack Nerd Font
+TEMP_DIR=$(mktemp -d)
+cd "$TEMP_DIR"
+
+curl -fLo "Hack.zip" https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip
+unzip -o Hack.zip -d "$FONT_DIR"
+
+# Cleanup
+rm -rf "$TEMP_DIR"
+
+# Update font cache
+fc-cache -fv
+
+{{ end }}
+
+echo "Hack Nerd Font installed successfully!"

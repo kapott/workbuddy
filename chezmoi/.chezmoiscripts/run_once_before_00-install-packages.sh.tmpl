@@ -1,0 +1,67 @@
+#!/bin/bash
+# Install base packages based on OS
+
+set -e
+
+{{ if eq .chezmoi.os "darwin" }}
+# macOS: Install via Homebrew
+if ! command -v brew &> /dev/null; then
+    echo "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+# Add Homebrew to PATH for Apple Silicon
+if [ -d "/opt/homebrew" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+echo "Installing packages via Homebrew..."
+brew install git vim tmux zsh curl coreutils
+
+{{ else if eq .chezmoi.os "linux" }}
+# Detect Linux distribution
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    DISTRO=$ID
+else
+    DISTRO="unknown"
+fi
+
+case "$DISTRO" in
+    debian|ubuntu)
+        echo "Installing packages via apt..."
+        sudo apt update
+        sudo apt install -y git vim tmux zsh curl
+        # Desktop packages (only if X11 is available)
+        if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
+            sudo apt install -y i3 polybar rofi dunst alacritty feh picom
+        fi
+        ;;
+    fedora)
+        echo "Installing packages via dnf..."
+        sudo dnf install -y git vim tmux zsh curl
+        # Enable COPR for i3-gaps if needed
+        if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
+            sudo dnf copr enable -y fuhrmann/i3-gaps || true
+            sudo dnf install -y i3-gaps polybar rofi dunst alacritty feh picom
+        fi
+        ;;
+    arch|manjaro)
+        echo "Installing packages via pacman..."
+        sudo pacman -Syu --noconfirm git vim tmux zsh curl
+        if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
+            sudo pacman -S --noconfirm i3-gaps polybar rofi dunst alacritty feh picom
+        fi
+        ;;
+    nixos)
+        echo "NixOS detected - packages managed via flake configuration"
+        echo "Run: sudo nixos-rebuild switch --flake ~/workbuddy/chezmoi/nixos#legion"
+        ;;
+    *)
+        echo "Unknown distribution: $DISTRO"
+        echo "Please install packages manually: git vim tmux zsh curl"
+        ;;
+esac
+{{ end }}
+
+echo "Package installation complete!"
