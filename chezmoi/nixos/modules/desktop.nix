@@ -55,7 +55,7 @@
   # Desktop applications
   environment.systemPackages = with pkgs; [
     # Terminal emulator
-    alacritty
+    kitty
 
     # Status bar
     polybar

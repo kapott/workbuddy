@@ -1,6 +1,6 @@
 export EDITOR=vim
 export VISUAL=vim
-export TERMINAL=alacritty
+export TERMINAL=kitty
 export BROWSER=firefox
 
 XDG_CACHE_HOME=$HOME/.cache

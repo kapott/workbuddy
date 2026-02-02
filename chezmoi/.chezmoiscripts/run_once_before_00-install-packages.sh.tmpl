@@ -34,7 +34,7 @@ case "$DISTRO" in
         sudo apt install -y git vim tmux zsh curl
         # Desktop packages (only if X11 is available)
         if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
-            sudo apt install -y i3 polybar rofi dunst alacritty feh picom
+            sudo apt install -y i3 polybar rofi dunst kitty feh picom
         fi
         ;;
     fedora)
@@ -43,14 +43,14 @@ case "$DISTRO" in
         # Enable COPR for i3-gaps if needed
         if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
             sudo dnf copr enable -y fuhrmann/i3-gaps || true
-            sudo dnf install -y i3-gaps polybar rofi dunst alacritty feh picom
+            sudo dnf install -y i3-gaps polybar rofi dunst kitty feh picom
         fi
         ;;
     arch|manjaro)
         echo "Installing packages via pacman..."
         sudo pacman -Syu --noconfirm git vim tmux zsh curl
         if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
-            sudo pacman -S --noconfirm i3-gaps polybar rofi dunst alacritty feh picom
+            sudo pacman -S --noconfirm i3-gaps polybar rofi dunst kitty feh picom
         fi
         ;;
     nixos)
