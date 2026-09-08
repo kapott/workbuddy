@@ -156,27 +156,56 @@ package_list() {
 {{ end }}"
 }
 
+# The given packages that pacman does not have, one per line. Asked one at a
+# time because `pacman -Qq a b c` answers with a single exit status and says
+# nothing about which of the three it meant.
+missing_packages() {
+    local package
+    for package in "$@"; do
+        pacman -Qq "$package" >/dev/null 2>&1 || printf '%s\n' "$package"
+    done
+}
+
 install_repo_packages() {
     local source_dir="$1" dry="$2"
-    local -a packages
+    local -a packages missing
     mapfile -t packages < <(package_list "$source_dir" "$CONFIG_REPO_PACKAGE_GROUPS")
+    mapfile -t missing < <(missing_packages "${packages[@]}")
 
-    say "Installing packages from the repositories"
-    run "$dry" sudo pacman -S --needed "${packages[@]}"
+    if [ ${#missing[@]} -eq 0 ]; then
+        say "Every repository package is already installed"
+        return 0
+    fi
+
+    # Only the absent names, never the whole list. --needed skips a package only
+    # when the installed version matches the sync database, and CachyOS ships
+    # higher pkgrels than Arch, so the full list reads as a downgrade request:
+    # pipewire 1:1.6.8-1.2 back to 1:1.6.8-1, which breaks the dependency
+    # pipewire-alsa, pipewire-audio and pipewire-pulse declare, and then nothing
+    # installs at all. See docs/kb/pacman-needed-wants-to-downgrade-cachyos-packages.md.
+    say "Installing ${#missing[@]} missing package(s) from the repositories"
+    run "$dry" sudo pacman -S --needed "${missing[@]}"
 }
 
 install_aur_packages() {
     local source_dir="$1" dry="$2"
-    local -a packages
+    local -a packages missing
     mapfile -t packages < <(package_list "$source_dir" "$CONFIG_AUR_PACKAGE_GROUPS")
 
-    if ! command -v paru >/dev/null 2>&1; then
-        echo "paru not found, skipping AUR packages: ${packages[*]}" >&2
+    mapfile -t missing < <(missing_packages "${packages[@]}")
+
+    if [ ${#missing[@]} -eq 0 ]; then
+        say "Every AUR package is already installed"
         return 0
     fi
 
-    say "Installing AUR packages"
-    run "$dry" paru -S --needed "${packages[@]}"
+    if ! command -v paru >/dev/null 2>&1; then
+        echo "paru not found, skipping AUR packages: ${missing[*]}" >&2
+        return 0
+    fi
+
+    say "Installing ${#missing[@]} missing AUR package(s)"
+    run "$dry" paru -S --needed "${missing[@]}"
 }
 
 # ---------------------------------------------------------------------------
