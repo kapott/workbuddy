@@ -1,0 +1,24 @@
+# Global mise tools.
+#
+# This lives at ~/.config/mise/config.toml, not ~/.mise.toml. Both are global
+# config paths and mise merges whatever it finds, so keeping two of them means
+# two places to look when a version is wrong. This is the one `mise config`
+# reports as active, so this is the one that is managed.
+#
+# The list is deliberately short. Two kinds of tool were dropped when this moved
+# out of ~/.mise.toml:
+#
+#   ripgrep, fzf - the system package manager already ships these (pacman on
+#   Arch, brew on macOS). Pinning them here too puts a second binary
+#   in the shims directory ahead of the system one, and the version skew that
+#   creates only exists inside your shell, which is a miserable thing to debug.
+#
+#   node - resolved through MISE_NODE_VERSION on at least one machine here.
+#   A global pin would silently win over that in some directories and lose in
+#   others. Project-level mise.toml is the right place for a node version.
+
+[tools]
+ansible-core = "2.20.5"
+helm = "3.21.4"
+kubectl = "latest"
+uv = "0.11.7"

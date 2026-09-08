@@ -1,6 +1,6 @@
 #!/bin/bash
-# Install/sync mise tools when .mise.toml changes
-# hash: {{ include "dot_mise.toml" | sha256sum }}
+# Install/sync mise tools when the global config changes
+# hash: {{ include "private_dot_config/private_mise/config.toml" | sha256sum }}
 
 set -e
 
@@ -12,10 +12,12 @@ if ! command -v mise &> /dev/null; then
     exit 0
 fi
 
-echo "Installing mise tools from ~/.mise.toml..."
+CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/mise/config.toml"
+
+echo "Installing mise tools from $CONFIG..."
 
 # Trust the config file
-mise trust "$HOME/.mise.toml" 2>/dev/null || true
+mise trust "$CONFIG" 2>/dev/null || true
 
 # Install all tools
 mise install

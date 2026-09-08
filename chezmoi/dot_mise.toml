@@ -1,5 +1,0 @@
-[tools]
-node = "lts"
-ripgrep = "14.1.0"
-fzf = "latest"
-starship = "latest"
