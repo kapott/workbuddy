@@ -7,3 +7,19 @@ XDG_CACHE_HOME=$HOME/.cache
 XDG_CONFIG_HOME=$HOME/.config
 XDG_DATA_HOME=$HOME/.local/share
 XDG_STATE_HOME=$HOME/.local/state
+
+# Man pages in colour. bat does it with a real syntax highlighter; without bat,
+# less can still be told which escape sequences to use for bold and underline,
+# which is the trick the CachyOS zsh config uses. Same block in
+# ~/.config/fish/conf.d/00-env.fish.
+if command -v bat >/dev/null 2>&1; then
+    export MANROFFOPT="-c"
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+else
+    export LESS_TERMCAP_md=$(tput bold 2>/dev/null; tput setaf 2 2>/dev/null)
+    export LESS_TERMCAP_me=$(tput sgr0 2>/dev/null)
+    export LESS_TERMCAP_us=$(tput smul 2>/dev/null; tput bold 2>/dev/null; tput setaf 3 2>/dev/null)
+    export LESS_TERMCAP_ue=$(tput sgr0 2>/dev/null)
+    export LESS_TERMCAP_so=$(tput smso 2>/dev/null)
+    export LESS_TERMCAP_se=$(tput rmso 2>/dev/null)
+fi

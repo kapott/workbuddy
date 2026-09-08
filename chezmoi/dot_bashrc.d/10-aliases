@@ -1,16 +1,27 @@
 #!/usr/bin/env bash
 
 # Recolor remaps
-alias ls='ls --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias grep='grep --color=auto'
+alias dir='dir --color=auto'
+alias vdir='vdir --color=auto'
 alias tmux='tmux -u'
 
-# some more ls aliases
-alias ll='ls -ahlF --group-directories-first'
-alias la='ls -A'
-alias l='ls -CF'
+# Listing. eza when present, ls otherwise, same letters either way. Kept in step
+# with ~/.config/fish/conf.d/10-aliases.fish.
+if command -v eza >/dev/null 2>&1; then
+    alias ls='eza -a --color=always --group-directories-first --icons=always'
+    alias ll='eza -l --color=always --group-directories-first --icons=always'
+    alias la='eza -al --color=always --group-directories-first --icons=always'
+    alias lt='eza -aT --color=always --group-directories-first --icons=always'
+    alias l.="eza -a | grep -e '^\.'"
+else
+    alias ls='ls --color=auto'
+    alias ll='ls -ahlF --group-directories-first'
+    alias la='ls -A'
+    alias lt='ls --human-readable --size -1 -S --classify'
+fi
 
 # One letter aliases
 alias f='find'
@@ -25,8 +36,6 @@ alias u='upg'
 # Two letter aliases
 alias ff='find . -type f -name'
 alias gh='history|grep'
-alias ll='ls -laH'
-alias lt='ls --human-readable --size -1 -S --classify'
 alias sv='sudo vim'
 
 # Three letter aliases

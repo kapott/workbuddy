@@ -1,15 +1,39 @@
 #!/usr/bin/env bash
 
-# Update the window title
+# Two-line prompt: time, user@host, cwd, git branch, then the exit status of the
+# last command on a line of its own. The fish translation lives in
+# ~/.config/fish/functions/fish_prompt.fish and should keep the same shape.
+#
+# Everything here appends to PROMPT_COMMAND rather than assigning it. On Arch,
+# /etc/bash.bashrc fills PROMPT_COMMAND as an array that writes the window
+# title, and a plain assignment silently drops that.
+
+# Show the running command in the window title. The DEBUG trap fires before each
+# command, so the title tracks what is executing; when the command finishes, the
+# PROMPT_COMMAND entry from /etc/bash.bashrc puts user@host:cwd back.
 update_title() {
-    # Use the last executed command
-    local last_command=$(history 1 | sed 's/^[ ]*[0-9]*[ ]*//')
-    echo -ne "\033]0;${last_command}\007"
+    printf '\033]0;%s\007' "$(history 1 | sed 's/^[ ]*[0-9]*[ ]*//')"
 }
 
-PROMPT_COMMAND='PS1_CMD1=$(git branch --show-current 2>/dev/null);';
-PROMPT_COMMAND="$PROMPT_COMMAND update_title;"
-PS1='\[\e[90m\]\A\[\e[0m\] \[\e[38;5;154m\]\u\[\e[0;1m\]@\[\e[0;38;5;154m\]\H\[\e[0m\] [\[\e[38;5;122m\]\w\[\e[0m\]] : \[\e[38;5;227m\]${PS1_CMD1}\[\e[0m\] \n[\[\e[90m\]$?\[\e[0m\]] \$ '
+read_git_branch() {
+    PS1_CMD1=$(git branch --show-current 2>/dev/null)
+}
 
-PROMPT_COMMAND='PS1_CMD1=$(git branch --show-current 2>/dev/null); update_title';
-trap 'update_title' DEBUG
+# ${var@a} lists a variable's attributes; 'a' means indexed array. Bash 5.1 made
+# PROMPT_COMMAND an array, older bash keeps it a string, and both still occur.
+prompt_command_append() {
+    local command=$1
+    if [[ ${PROMPT_COMMAND@a} == *a* ]]; then
+        PROMPT_COMMAND+=("$command")
+    else
+        PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}$command"
+    fi
+}
+
+trap update_title DEBUG
+prompt_command_append read_git_branch
+# Every shell writes its history as it goes, so a new shell sees what the others
+# did instead of only what the last one to exit left behind.
+prompt_command_append 'history -a'
+
+PS1='\[\e[90m\]\A\[\e[0m\] \[\e[38;5;154m\]\u\[\e[0;1m\]@\[\e[0;38;5;154m\]\H\[\e[0m\] [\[\e[38;5;122m\]\w\[\e[0m\]] : \[\e[38;5;227m\]${PS1_CMD1}\[\e[0m\] \n[\[\e[90m\]$?\[\e[0m\]] \$ '

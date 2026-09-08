@@ -1,10 +1,18 @@
-# Path to your oh-my-zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
+# Powerlevel10k's instant prompt has to stay at the top: it draws a prompt from
+# a cache before the rest of this file runs, so anything above it that prints or
+# asks a question ends up on screen twice or gets swallowed.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
-# Set theme
-ZSH_THEME="refined"
+# Arch packages oh-my-zsh in /usr/share, which pacman then keeps up to date.
+# Elsewhere it is the clone that .chezmoiscripts/02-install-ohmyzsh.sh makes.
+if [ -d /usr/share/oh-my-zsh ]; then
+    export ZSH=/usr/share/oh-my-zsh
+else
+    export ZSH="$HOME/.oh-my-zsh"
+fi
 
-# Plugins (Full DevOps setup)
 plugins=(
     git
     z
@@ -18,30 +26,52 @@ plugins=(
     ansible
 )
 
+# powerlevel10k when the distro ships it, and it is sourced after oh-my-zsh
+# rather than set through ZSH_THEME, because the theme file is outside $ZSH.
+# refined is the fallback and is bundled with oh-my-zsh itself.
+if [ ! -f /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme ]; then
+    ZSH_THEME="refined"
+fi
+
 source $ZSH/oh-my-zsh.sh
+
+if [ -f /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme ]; then
+    source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
+    # Written by `p10k configure`. Without it p10k runs its wizard on first start.
+    [ -f ~/.p10k.zsh ] && source ~/.p10k.zsh
+fi
+
+# The three plugins that give zsh what fish has out of the box. Syntax
+# highlighting binds the widgets the others wrap, so it goes last.
+[ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ] &&
+    source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+[ -f /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh ] &&
+    source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+[ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] &&
+    source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Suggest the package that would provide an unknown command. Needs a pkgfile
+# database, so run `sudo pkgfile --update` once.
+[ -f /usr/share/doc/pkgfile/command-not-found.zsh ] &&
+    source /usr/share/doc/pkgfile/command-not-found.zsh
 
 # User configuration
 
-# Source shared bash aliases and functions from .bashrc.d/
+# Shared with bash. 00-env is plain `export`, so zsh reads it unchanged; the
+# other three carry the aliases and functions. Keeping them in one place is why
+# this file has no copy of them.
 if [ -d ~/.bashrc.d ]; then
-    for rc in ~/.bashrc.d/10-aliases ~/.bashrc.d/20-functions ~/.bashrc.d/21-update; do
+    for rc in ~/.bashrc.d/00-env ~/.bashrc.d/10-aliases ~/.bashrc.d/20-functions ~/.bashrc.d/21-update; do
         if [ -e "$rc" ]; then
             . "$rc"
         fi
     done
 fi
 
-# Environment variables
-export EDITOR=vim
-export VISUAL=vim
-export TERMINAL=kitty
-export BROWSER=firefox
-
-# XDG Base Directory Specification
-export XDG_CACHE_HOME=$HOME/.cache
-export XDG_CONFIG_HOME=$HOME/.config
-export XDG_DATA_HOME=$HOME/.local/share
-export XDG_STATE_HOME=$HOME/.local/state
+# History: what bash gets from HISTCONTROL and `history -a`.
+setopt hist_ignore_all_dups
+setopt hist_ignore_space
+setopt share_history
 
 # PATH additions
 if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]; then
@@ -63,4 +93,4 @@ fi
 
 # Use rg for fzf if available
 command -v rg >/dev/null 2>&1 && export FZF_DEFAULT_COMMAND="rg --files --hidden"
-
+export FZF_BASE=/usr/share/fzf
