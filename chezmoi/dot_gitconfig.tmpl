@@ -2,6 +2,25 @@
 	name = {{ .name }}
 	email = {{ .email }}
 
+[init]
+	defaultBranch = main
+
+[credential]
+{{- if eq .chezmoi.os "darwin" }}
+	helper = osxkeychain
+{{- else if stat "/usr/lib/git-core/git-credential-libsecret" }}
+	# Talks to org.freedesktop.secrets, which ksecretd owns on this machine and
+	# the pam_kwallet handover unlocks at login, so pushes stop asking without a
+	# token sitting in cleartext. Ships with git itself on Arch; git finds it in
+	# its exec path, so the bare name is enough.
+	helper = libsecret
+{{- else }}
+	# No secret service found at render time. cache keeps the token in a daemon's
+	# memory for 15 minutes and writes nothing to disk, which beats `store`.
+	# Install libsecret support and re-apply to switch.
+	helper = cache --timeout=900
+{{- end }}
+
 [push]
 	default = simple
 
