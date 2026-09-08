@@ -8,7 +8,8 @@ Dotfiles and development environment management for Linux, macOS, and NixOS.
 # Clone repo
 git clone <repo> ~/workbuddy
 
-# Initialize chezmoi with this source
+# Initialize chezmoi with this source. It asks three questions once: git name,
+# git email, and which of bash, zsh and fish becomes the login shell.
 chezmoi init --source ~/workbuddy/chezmoi
 
 # Preview changes
@@ -21,11 +22,25 @@ chezmoi apply -v
 ## What Gets Installed
 
 ### Via chezmoi scripts (run automatically)
-- **Packages**: git, vim, tmux, zsh, curl (OS-specific package managers)
+- **Packages**: git, vim, tmux, bash, zsh, fish, curl (OS-specific package managers)
 - **mise**: Tool version manager (ansible-core, helm, kubectl, uv)
 - **oh-my-zsh**: ZSH framework with plugins
 - **Vundle**: Vim plugin manager + plugins
 - **Hack Nerd Font**: Patched font for terminal
+- **Login shell**: `chsh` to the shell picked at init, if it is not already that
+
+### Picking a login shell
+
+All three shells are configured and all three are installed, so the choice at
+`chezmoi init` only decides what `getent passwd` returns. To switch afterwards,
+edit `shell` in `~/.config/chezmoi/chezmoi.toml` and run `chezmoi apply` again:
+the choice is rendered into the script, so changing it changes the script's hash
+and chezmoi runs it once more.
+
+`chsh` asks for the account password. Over ssh, in a container or from an agent
+there is nowhere to ask, so the script prints the command and moves on rather
+than failing the apply. It also stops short when the shell is missing or absent
+from `/etc/shells`, which is the one thing `chsh` refuses without saying why.
 
 ### Dotfiles managed
 - `.bashrc` + `.bashrc.d/` (modular bash configuration)

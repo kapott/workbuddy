@@ -1,0 +1,46 @@
+#!/bin/bash
+# Set the login shell to the one chosen at `chezmoi init`.
+#
+# The choice is rendered into this script, so its hash changes when the choice
+# changes and chezmoi runs it again. Editing `shell` in
+# ~/.config/chezmoi/chezmoi.toml and re-applying is how you switch.
+#
+# Nothing here is fatal. chsh asks for the account password and a run over ssh,
+# in a container or from an agent has nowhere to ask; a login shell is not worth
+# aborting an apply for. Every refusal prints the command to run by hand.
+
+set -u
+
+WANTED="{{ .shell }}"
+
+target="$(command -v "$WANTED" 2>/dev/null || true)"
+if [ -z "$target" ]; then
+    echo "login shell: $WANTED is not installed, leaving the shell alone" >&2
+    exit 0
+fi
+
+# Compared after readlink, because the two sides disagree on spelling. `command
+# -v fish` answers /usr/bin/fish while an account set up before the /usr merge
+# has /bin/fish in passwd, and on Arch those are the same file. A plain string
+# compare runs chsh on every apply and asks for a password each time.
+current="$(getent passwd "$(id -un)" | cut -d: -f7)"
+if [ "$(readlink -f "$current")" = "$(readlink -f "$target")" ]; then
+    echo "login shell is already $current"
+    exit 0
+fi
+
+# chsh refuses anything not listed here, and the error it gives ("chsh: shell
+# must be a full pathname") does not say that is the reason.
+if ! grep -qxF "$target" /etc/shells; then
+    echo "login shell: $target is not in /etc/shells, so chsh will refuse it." >&2
+    echo "  add it there first, then run: chsh -s $target" >&2
+    exit 0
+fi
+
+echo "Changing the login shell from $current to $target"
+if ! chsh -s "$target"; then
+    echo "login shell: chsh failed. Run it by hand: chsh -s $target" >&2
+    exit 0
+fi
+
+echo "Done. Log out and back in for it to take effect."

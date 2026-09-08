@@ -3,6 +3,11 @@
 
 set -e
 
+# All three shells this repo configures are installed everywhere, not just the
+# one picked as the login shell at `chezmoi init`. The bash, zsh and fish configs
+# are deployed regardless, and switching between them should cost a chsh rather
+# than another apply.
+
 {{ if eq .chezmoi.os "darwin" }}
 # macOS: Install via Homebrew
 if ! command -v brew &> /dev/null; then
@@ -16,7 +21,7 @@ if [ -d "/opt/homebrew" ]; then
 fi
 
 echo "Installing packages via Homebrew..."
-brew install git vim tmux zsh curl coreutils
+brew install git vim tmux zsh fish curl coreutils
 
 {{ else if eq .chezmoi.os "linux" }}
 # Detect Linux distribution
@@ -31,7 +36,7 @@ case "$DISTRO" in
     debian|ubuntu)
         echo "Installing packages via apt..."
         sudo apt update
-        sudo apt install -y git vim tmux zsh curl
+        sudo apt install -y git vim tmux zsh fish curl
         # Desktop packages (Wayland/Sway)
         if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] || [ -n "$XDG_SESSION_TYPE" ]; then
             sudo apt install -y sway wofi mako-notifier kitty grim slurp wl-clipboard swaylock swayidle swaybg
@@ -45,7 +50,7 @@ case "$DISTRO" in
         ;;
     fedora)
         echo "Installing packages via dnf..."
-        sudo dnf install -y git vim tmux zsh curl
+        sudo dnf install -y git vim tmux zsh fish curl
         # Desktop packages (Wayland/Sway)
         if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] || [ -n "$XDG_SESSION_TYPE" ]; then
             sudo dnf install -y sway wofi mako kitty grim slurp wl-clipboard swaylock swayidle swaybg
@@ -57,7 +62,7 @@ case "$DISTRO" in
         ;;
     arch|manjaro|cachyos)
         echo "Installing packages via pacman..."
-        sudo pacman -Syu --noconfirm git vim tmux zsh curl
+        sudo pacman -Syu --noconfirm git vim tmux zsh fish curl
         # Desktop packages (Wayland/Sway). The list lives in
         # .chezmoidata/packages.toml, which install-sway.sh reads as well.
         if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] || [ -n "$XDG_SESSION_TYPE" ]; then
