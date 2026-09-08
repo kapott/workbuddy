@@ -1,6 +1,11 @@
 [data]
     name = "{{ promptStringOnce . "name" "Git user name" }}"
     email = "{{ promptStringOnce . "email" "Git email" }}"
+    # Which of the three shells this repo configures becomes the login shell.
+    # All three configs are deployed either way, so this only decides what
+    # `getent passwd` returns; switching later means editing this value and
+    # running `chezmoi apply` again.
+    shell = "{{ promptChoiceOnce . "shell" "Login shell" (list "bash" "zsh" "fish") "bash" }}"
 
 [diff]
     pager = "less -FRX"
