@@ -26,8 +26,17 @@ end
 # libvirt talks to the system daemon, not the per-user session one.
 set -gx LIBVIRT_DEFAULT_URI "qemu:///system"
 
-# Read man pages through bat when it is available.
+# Man pages in colour, same block as ~/.bashrc.d/00-env. bat highlights them
+# properly; without bat, less is told which escape sequences to use for bold and
+# underline, which is what the CachyOS zsh config does.
 if type -q bat
     set -gx MANROFFOPT "-c"
     set -gx MANPAGER "sh -c 'col -bx | bat -l man -p'"
+else
+    set -gx LESS_TERMCAP_md (tput bold; tput setaf 2)
+    set -gx LESS_TERMCAP_me (tput sgr0)
+    set -gx LESS_TERMCAP_us (tput smul; tput bold; tput setaf 3)
+    set -gx LESS_TERMCAP_ue (tput sgr0)
+    set -gx LESS_TERMCAP_so (tput smso)
+    set -gx LESS_TERMCAP_se (tput rmso)
 end

@@ -1,4 +1,8 @@
 HISTSIZE= HISTFILESIZE=
+# Keep neither duplicates nor commands typed with a leading space. `history -a`
+# in 01-prompt is the other half: this decides what gets written, that decides
+# when.
+HISTCONTROL=ignoreboth
 shopt -s autocd;
 shopt -s nocaseglob;
 shopt -s globstar;
@@ -12,8 +16,15 @@ shopt -s cdspell;
 command -v rg >/dev/null 2>&1 && export FZF_DEFAULT_COMMAND="rg --files --hidden"
 command -v rg >/dev/null 2>&1 || export FZF_DEFAULT_COMMAND="find -L"
 
-# Import fzf keybindings for bash if they're there.
-include /usr/share/doc/fzf/examples/key-bindings.bash
+# Import fzf keybindings for bash if they're there. `include` is not a bash
+# builtin; the line used to say that and failed on every shell start.
+[ -f /usr/share/doc/fzf/examples/key-bindings.bash ] &&
+    . /usr/share/doc/fzf/examples/key-bindings.bash
+
+# Suggest the package that would provide an unknown command. Needs a pkgfile
+# database, so run `sudo pkgfile --update` once.
+[ -f /usr/share/doc/pkgfile/command-not-found.bash ] &&
+    . /usr/share/doc/pkgfile/command-not-found.bash
 
 # Check if we have an interactive shell
 if [[ $- == *i* ]]; then
