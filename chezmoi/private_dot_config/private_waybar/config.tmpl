@@ -1,0 +1,140 @@
+{{/*
+Waybar. Host-specific hardware paths sit behind a .chezmoi.hostname branch, the
+same way private_sway/config.tmpl does it. Without the branch every machine got
+endling's hwmon path, backlight device and battery name, and the three modules
+then render nothing and log no error. This comment is Go template syntax rather
+than JSON so the rendered file stays plain JSON.
+*/ -}}
+{
+    "layer": "top",
+    "position": "top",
+    "height": 30,
+    "spacing": 4,
+
+    "modules-left": ["sway/workspaces", "sway/mode", "sway/window"],
+    "modules-center": [],
+    "modules-right": [
+        "idle_inhibitor",
+        "pulseaudio",
+        "backlight",
+        "bluetooth",
+        "network",
+        "cpu",
+        "memory",
+        "temperature",
+        "battery",
+        "clock",
+        "tray"
+    ],
+
+    "sway/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": false,
+        "format": "{name}"
+    },
+
+    "sway/mode": {
+        "format": "<span style=\"italic\">{}</span>"
+    },
+
+    "sway/window": {
+        "max-length": 50
+    },
+
+    "tray": {
+        "spacing": 10
+    },
+
+    "clock": {
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "format": "{:%H:%M}",
+        "format-alt": "{:%a %Y-%m-%d %H:%M}"
+    },
+
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "AWAKE",
+            "deactivated": "IDLE"
+        },
+        "tooltip-format-activated": "Idle inhibited, screen stays on",
+        "tooltip-format-deactivated": "Normal idle timeout"
+    },
+
+    "cpu": {
+        "format": "CPU {usage}%",
+        "interval": 5,
+        "tooltip": false,
+        "on-click": "kitty -e btop"
+    },
+
+    "memory": {
+        "format": "RAM {}%",
+        "interval": 5,
+        "tooltip-format": "{used:0.1f}G of {total:0.1f}G"
+    },
+
+    "temperature": {
+{{- if eq .chezmoi.hostname "endling" }}
+        "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
+        "input-filename": "temp1_input",
+{{- end }}
+        "critical-threshold": 90,
+        "interval": 5,
+        "format": "{temperatureC}C",
+        "format-critical": "HOT {temperatureC}C",
+        "tooltip": false
+    },
+
+    "backlight": {
+{{- if eq .chezmoi.hostname "endling" }}
+        "device": "amdgpu_bl1",
+{{- end }}
+        "format": "SCR {percent}%",
+        "on-scroll-up": "brightnessctl set +5%",
+        "on-scroll-down": "brightnessctl set 5%-"
+    },
+
+    "battery": {
+{{- if eq .chezmoi.hostname "endling" }}
+        "bat": "BAT0",
+{{- end }}
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "BAT {capacity}%",
+        "format-charging": "CHR {capacity}%",
+        "format-plugged": "PLG {capacity}%",
+        "format-alt": "{time}",
+        "tooltip-format": "{capacity}%, {power:0.1f}W, {time}"
+    },
+
+    "network": {
+        "format-wifi": "{essid} ({signalStrength}%)",
+        "format-ethernet": "{ipaddr}/{cidr}",
+        "tooltip-format": "{ifname} via {gwaddr}",
+        "format-linked": "{ifname} (No IP)",
+        "format-disconnected": "Disconnected",
+        "format-alt": "{ifname}: {ipaddr}/{cidr}",
+        "on-click-right": "kitty -e nmtui"
+    },
+
+    "bluetooth": {
+        "format": "BT",
+        "format-disabled": "",
+        "format-off": "",
+        "format-connected": "BT {num_connections}",
+        "tooltip-format-connected": "{device_enumerate}",
+        "on-click": "blueman-manager"
+    },
+
+    "pulseaudio": {
+        "format": "VOL {volume}%",
+        "format-muted": "MUTED",
+        "format-bluetooth": "VOL {volume}% BT",
+        "on-click": "pavucontrol",
+        "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "scroll-step": 5
+    }
+}

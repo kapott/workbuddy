@@ -1,0 +1,36 @@
+# swaylock, Monokai-ish to match sway and waybar.
+
+daemonize
+ignore-empty-password
+show-failed-attempts
+indicator-caps-lock
+
+color=2e2e2e
+inside-color=2e2e2e
+inside-clear-color=fd971f
+inside-ver-color=8abeb7
+inside-wrong-color=a54242
+
+ring-color=797979
+ring-clear-color=fd971f
+ring-ver-color=8abeb7
+ring-wrong-color=a54242
+
+key-hl-color=fd971f
+bs-hl-color=f92672
+
+line-color=00000000
+line-clear-color=00000000
+line-ver-color=00000000
+line-wrong-color=00000000
+
+separator-color=00000000
+
+text-color=d6d6d6
+text-clear-color=2e2e2e
+text-ver-color=2e2e2e
+text-wrong-color=d6d6d6
+
+indicator-radius=110
+indicator-thickness=8
+font=Hack Nerd Font

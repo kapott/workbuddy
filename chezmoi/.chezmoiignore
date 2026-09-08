@@ -1,4 +1,6 @@
-# Ignore README and documentation
+# Ignore READMEs and documentation. The pattern needs the ** prefix: a bare
+# README.md only matches the one at the root, not e.g. .config/sway/README.md.
+**/README.md
 README.md
 LICENSE
 

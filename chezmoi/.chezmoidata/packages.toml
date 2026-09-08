@@ -1,0 +1,23 @@
+# Package lists that more than one thing needs.
+#
+# Read by .chezmoiscripts/run_once_before_00-install-packages.sh.tmpl, which
+# provisions a fresh machine, and by install-sway.sh at the repo root, which adds
+# sway to a machine that already runs another desktop. Both used to carry their
+# own copy of the list with a comment asking a human to keep them in step; the
+# copies had already drifted (iio-sensor-proxy was only in one of them).
+#
+# install-sway.sh reads these through `chezmoi execute-template`, so a name added
+# here reaches both callers.
+
+[packages.arch]
+# Compositor, bar, launcher, notifications, lock and idle.
+core = ["sway", "swaybg", "swayidle", "swaylock", "waybar", "wofi", "mako", "kitty"]
+# Screenshots, clipboard, brightness, media keys.
+tools = ["grim", "slurp", "wl-clipboard", "cliphist", "brightnessctl", "playerctl", "wtype", "jq", "libnotify"]
+# Display hotplug profiles, tray applets, screen sharing, Qt on Wayland, and the
+# accelerometer daemon autorotate.sh reads through monitor-sensor. wdisplays is
+# the escape hatch display.sh offers for a projector it lays out badly.
+desktop = ["kanshi", "wdisplays", "network-manager-applet", "blueman", "xdg-desktop-portal-wlr", "xdg-desktop-portal-gtk", "qt6-wayland", "ttf-hack-nerd", "iio-sensor-proxy"]
+# On-screen keyboard for when the Z13 keyboard cover is detached, and a script
+# that keeps new splits going the sensible way on an ultrawide.
+aur = ["wvkbd", "autotiling"]

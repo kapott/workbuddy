@@ -45,12 +45,16 @@ case "$DISTRO" in
             sudo dnf install -y sway waybar wofi mako kitty grim slurp wl-clipboard swaylock swayidle swaybg
         fi
         ;;
-    arch|manjaro)
+    arch|manjaro|cachyos)
         echo "Installing packages via pacman..."
         sudo pacman -Syu --noconfirm git vim tmux zsh curl
-        # Desktop packages (Wayland/Sway)
+        # Desktop packages (Wayland/Sway). The list lives in
+        # .chezmoidata/packages.toml, which install-sway.sh reads as well.
         if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] || [ -n "$XDG_SESSION_TYPE" ]; then
-            sudo pacman -S --noconfirm sway waybar wofi mako kitty grim slurp wl-clipboard swaylock swayidle swaybg
+            sudo pacman -S --needed --noconfirm \
+                {{ .packages.arch.core | join " " }} \
+                {{ .packages.arch.tools | join " " }} \
+                {{ .packages.arch.desktop | join " " }}
         fi
         ;;
     nixos)
