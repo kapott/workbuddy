@@ -372,6 +372,21 @@ exec nm-applet --indicator
 exec blueman-applet
 exec kanshi
 
+# Finish the kwallet PAM handover. pam_kwallet5 in /usr/lib/pam.d/plasmalogin
+# already started ksecretd holding the login password and left a socket at
+# $XDG_RUNTIME_DIR/kwallet5.socket, but the daemon does nothing until
+# pam_kwallet_init connects to it. Upstream ships that step as an XDG autostart
+# entry and a systemd unit that is PartOf=graphical-session.target, and sway runs
+# neither, so without this line the wallet stays shut and every app that wants a
+# secret activates a second, locked daemon and prompts for a password.
+# Harmless when the socket is absent, which is what a TTY login looks like.
+exec test -S "$XDG_RUNTIME_DIR/kwallet5.socket" && /usr/lib/pam_kwallet_init
+
+# Floor under kanshi: if an output event ever leaves sway with nothing enabled,
+# turn the internal panel back on. `external-only` plus an unplugged cable is the
+# way to get there, and once there no keybinding can help because nothing draws.
+exec ~/.config/sway/panel-guard.sh
+
 # Hand the session environment to systemd and the portals, otherwise screen
 # sharing and any systemd user unit that needs WAYLAND_DISPLAY come up blind.
 # The script refuses to do it when this sway is nested inside another
