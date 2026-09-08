@@ -32,13 +32,29 @@ else
     DISTRO="unknown"
 fi
 
+# A graphical session means the desktop set is wanted too. Same test in every
+# branch below.
+session_has_display() {
+    [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] || [ -n "$XDG_SESSION_TYPE" ]
+}
+
+# The given packages that pacman does not have, one per line. Asked one at a
+# time because `pacman -Qq a b c` answers with a single exit status and says
+# nothing about which of the three it meant.
+missing_packages() {
+    local package
+    for package in "$@"; do
+        pacman -Qq "$package" >/dev/null 2>&1 || printf '%s\n' "$package"
+    done
+}
+
 case "$DISTRO" in
     debian|ubuntu)
         echo "Installing packages via apt..."
         sudo apt update
         sudo apt install -y git vim tmux zsh fish curl
         # Desktop packages (Wayland/Sway)
-        if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] || [ -n "$XDG_SESSION_TYPE" ]; then
+        if session_has_display; then
             sudo apt install -y sway wofi mako-notifier kitty grim slurp wl-clipboard swaylock swayidle swaybg
             # ~/.config/sway/bar.sh takes quickshell when it is there and waybar
             # otherwise. Debian and Ubuntu package neither quickshell nor a way to
@@ -52,7 +68,7 @@ case "$DISTRO" in
         echo "Installing packages via dnf..."
         sudo dnf install -y git vim tmux zsh fish curl
         # Desktop packages (Wayland/Sway)
-        if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] || [ -n "$XDG_SESSION_TYPE" ]; then
+        if session_has_display; then
             sudo dnf install -y sway wofi mako kitty grim slurp wl-clipboard swaylock swayidle swaybg
             # quickshell lives in the errornointernet/quickshell COPR rather than
             # in Fedora proper, so waybar is the bar here. Enable that COPR and
@@ -61,15 +77,51 @@ case "$DISTRO" in
         fi
         ;;
     arch|manjaro|cachyos)
-        echo "Installing packages via pacman..."
-        sudo pacman -Syu --noconfirm git vim tmux zsh fish curl
-        # Desktop packages (Wayland/Sway). The list lives in
-        # .chezmoidata/packages.toml, which install-sway.sh reads as well.
-        if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] || [ -n "$XDG_SESSION_TYPE" ]; then
-            sudo pacman -S --needed --noconfirm \
-                {{ .packages.arch.core | join " " }} \
-                {{ .packages.arch.tools | join " " }} \
+        # The desktop list lives in .chezmoidata/packages.toml, which
+        # install-sway.sh reads as well.
+        packages=(git vim tmux zsh fish curl)
+        if session_has_display; then
+            packages+=(
+                {{ .packages.arch.core | join " " }}
+                {{ .packages.arch.tools | join " " }}
                 {{ .packages.arch.desktop | join " " }}
+            )
+        fi
+
+        mapfile -t missing < <(missing_packages "${packages[@]}")
+
+        # `-Syu` upgrades the whole system, kernel included, on whatever day
+        # this happens to run. On a machine being provisioned from nothing that
+        # is exactly right, and on one already in use it is a decision that
+        # belongs to its owner. Nothing from the list installed is what "from
+        # nothing" looks like.
+        #
+        # The second branch passes only the missing names, not the whole list.
+        # --needed skips a package that is already at the version in the sync
+        # database, and on CachyOS several are not: its pipewire is 1:1.6.8-1.2
+        # where Arch has 1:1.6.8-1, so handing pacman the full list asks it to
+        # downgrade pipewire and it refuses, because that breaks the dependency
+        # pipewire-alsa, pipewire-audio and pipewire-pulse declare. Naming only
+        # what is absent never touches an installed package.
+        #
+        # No -y either. Refreshing the sync database without upgrading is how
+        # you get a partial upgrade, which Arch does not support.
+        if [ ${#missing[@]} -eq 0 ]; then
+            echo "Every package on the list is already installed."
+        elif [ ${#missing[@]} -eq ${#packages[@]} ]; then
+            echo "Nothing from the list is installed; treating this as a fresh system."
+            sudo pacman -Syu --needed --noconfirm "${packages[@]}"
+        else
+            echo "Installing ${#missing[@]} missing package(s), leaving the rest alone: ${missing[*]}"
+            if ! sudo pacman -S --needed --noconfirm "${missing[@]}"; then
+                echo "pacman could not install ${missing[*]}. If it failed on a 404, the" >&2
+                echo "sync database is older than the mirrors; run 'sudo pacman -Syu'" >&2
+                echo "yourself and then 'chezmoi apply' again." >&2
+                exit 1
+            fi
+        fi
+
+        if session_has_display; then
             # quickshell is in packages.arch.core, so this only fires when that
             # install failed or the package left the repositories. bar.sh needs
             # one of the two to exist or the session comes up without a bar.
@@ -83,7 +135,7 @@ case "$DISTRO" in
         ;;
     *)
         echo "Unknown distribution: $DISTRO"
-        echo "Please install packages manually: git vim tmux zsh curl"
+        echo "Please install packages manually: git vim tmux zsh fish curl"
         ;;
 esac
 {{ end }}
