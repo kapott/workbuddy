@@ -64,7 +64,3 @@ fi
 # Use rg for fzf if available
 command -v rg >/dev/null 2>&1 && export FZF_DEFAULT_COMMAND="rg --files --hidden"
 
-# Starship prompt (if installed, overrides ZSH_THEME)
-if command -v starship &> /dev/null; then
-    eval "$(starship init zsh)"
-fi
