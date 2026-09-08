@@ -7,7 +7,7 @@ This documents the software replacements made when migrating from X11/i3 to Wayl
 | X11/i3 | Wayland/Sway | Description |
 |--------|--------------|-------------|
 | i3 | sway | Tiling window manager / compositor |
-| polybar | waybar | Status bar |
+| polybar | quickshell | Status bar |
 | rofi | wofi | Application launcher |
 | dunst | mako | Notification daemon |
 | feh | swaybg | Wallpaper setter |

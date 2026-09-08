@@ -11,13 +11,32 @@
 
 [packages.arch]
 # Compositor, bar, launcher, notifications, lock and idle.
-core = ["sway", "swaybg", "swayidle", "swaylock", "waybar", "wofi", "mako", "kitty"]
-# Screenshots, clipboard, brightness, media keys.
-tools = ["grim", "slurp", "wl-clipboard", "cliphist", "brightnessctl", "playerctl", "wtype", "jq", "libnotify"]
+core = ["sway", "swaybg", "swayidle", "swaylock", "quickshell", "wofi", "mako", "kitty"]
+# Screenshots, clipboard, brightness, media keys, and the two programs the bar
+# opens on a click: pavucontrol from the volume indicator, btop from the CPU one.
+# Both were already assumed by the waybar config and named nowhere.
+tools = ["grim", "slurp", "wl-clipboard", "cliphist", "brightnessctl", "playerctl", "wtype", "jq", "libnotify", "pavucontrol", "btop"]
 # Display hotplug profiles, tray applets, screen sharing, Qt on Wayland, and the
 # accelerometer daemon autorotate.sh reads through monitor-sensor. wdisplays is
 # the escape hatch display.sh offers for a projector it lays out badly.
-desktop = ["kanshi", "wdisplays", "network-manager-applet", "blueman", "xdg-desktop-portal-wlr", "xdg-desktop-portal-gtk", "qt6-wayland", "ttf-hack-nerd", "iio-sensor-proxy"]
+#
+# kwallet is here as the secret store, not as a piece of KDE. Its ksecretd owns
+# org.freedesktop.secrets, which is the cross-desktop Secret Service name every
+# libsecret client uses, so one store serves GTK, Qt and CLI tools alike. Pairing
+# it with a second provider such as gnome-keyring is the thing to avoid: they
+# fight over that one bus name and secrets end up split across two files.
+# kwallet-pam supplies pam_kwallet5 and pam_kwallet_init, which is what lets the
+# login password open the wallet instead of a prompt on every launch.
+#
+# upower, networkmanager, bluez, pipewire and wireplumber are the daemons the
+# quickshell bar reads over DBus, and they are named here even though something
+# else in this list already pulls each one in. waybar read /sys and /proc and
+# needed none of them; the bar now asks UPower for the battery, NetworkManager
+# for the Wi-Fi signal, bluez for the adapter and pipewire for the volume. A
+# transitive dependency that disappears in some future package split would take
+# an indicator with it and log nothing. nmtui, which the network indicator opens
+# on right-click, is in networkmanager.
+desktop = ["kanshi", "wdisplays", "network-manager-applet", "blueman", "xdg-desktop-portal-wlr", "xdg-desktop-portal-gtk", "qt6-wayland", "ttf-hack-nerd", "iio-sensor-proxy", "kwallet", "kwallet-pam", "upower", "networkmanager", "bluez", "pipewire", "wireplumber"]
 # On-screen keyboard for when the Z13 keyboard cover is detached, and a script
 # that keeps new splits going the sensible way on an ultrawide.
 aur = ["wvkbd", "autotiling"]

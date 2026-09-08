@@ -11,6 +11,7 @@ nixos/
 {{ if ne .chezmoi.os "linux" }}
 .Xresources
 .config/sway/
+.config/quickshell/
 .config/waybar/
 .config/mako/
 {{ end }}

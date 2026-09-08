@@ -26,6 +26,15 @@ elsewhere.
 swayidle also locks at 5 minutes idle, powers the outputs off at 10, and locks before
 sleep.
 
+The config also runs `/usr/lib/pam_kwallet_init` when the PAM socket is there. That is
+the second half of the kwallet login unlock, and it is not optional: `pam_kwallet5`
+starts `ksecretd` holding your login password but the daemon serves nobody until
+`pam_kwallet_init` connects to its socket. Upstream ships that step as an XDG autostart
+entry and a unit that is `PartOf=graphical-session.target`, and sway runs neither. Skip
+the line and the wallet stays shut, so every app wanting a secret activates a second
+locked daemon and prompts. See
+[`docs/kb/kwallet-asks-for-a-password-on-every-login-under-sway.md`](../../../../docs/kb/kwallet-asks-for-a-password-on-every-login-under-sway.md).
+
 ## Focus and moving windows
 
 | Keys | Action |
@@ -79,6 +88,22 @@ external is connected. `internal-only` also repositions the panel to 0,0, which 
 you want after undocking: the sway config parks eDP-1 at 3840,320 for the docked layout
 and that offset survives the ultrawide going away.
 
+Those two checks happen when you run the command, not later. `external-only` leaves the
+panel disabled, so pulling the cable afterwards is what actually leaves sway with no
+output on. Two things prevent a dark screen there:
+
+- kanshi handles the ordinary case. Its `tablet` profile lists eDP-1 alone, so losing
+  DP-5 changes the matched profile and re-enables the panel.
+- `panel-guard.sh` is the floor under that, started from the config with `exec`. It
+  subscribes to sway's output events and turns the panel back on whenever zero outputs
+  are active, one second after the event so kanshi gets first refusal. It covers what
+  kanshi cannot: kanshi not running, and an unknown external at a client site that
+  matches no profile.
+
+The guard only ever enables, never disables, so it cannot fight `external-only` while an
+external is still connected. Check it with `pgrep -f panel-guard.sh`; it logs to the sway
+log and sends a notification when it fires.
+
 There is no mirror command. Sway has no clone mode, and two outputs sharing a position
 still show separate workspaces. Mirroring means `wl-mirror`, which is not installed.
 The menu offers wdisplays for a layout the script gets wrong.
@@ -126,9 +151,31 @@ All of these carry `--locked`, so they still work on the lock screen.
 | Key | Action |
 |---|---|
 | `XF86KbdBrightnessUp` / `XF86KbdBrightnessDown` | keyboard cover backlight, `asus::kbd_backlight` |
-| `XF86Launch4` (fan key) | next asusd performance profile, then notify which one |
+| `XF86Launch4` (fan key) | next asusd power profile (`power-profile.sh next`), notify, refresh the bar |
 | `XF86Launch1` (ROG key) | rog-control-center |
 | `Mod+o` | toggle the on-screen keyboard (`toggle-osk.sh`) |
+
+`power-profile.sh` wraps `asusctl` for both the fan key and the bar indicator, so a CLI
+rename breaks one file rather than two. That is not hypothetical: this binding ran
+`asusctl profile -n` for months, which 6.4.0 rejects as an unrecognised argument, and the
+`&&` meant even the notification never fired. See
+[`docs/kb/rog-fan-key-does-not-change-the-power-profile.md`](../../../../docs/kb/rog-fan-key-does-not-change-the-power-profile.md).
+
+```bash
+~/.config/sway/power-profile.sh get              # active profile
+~/.config/sway/power-profile.sh next             # cycle
+~/.config/sway/power-profile.sh set Balanced     # Quiet, Balanced or Performance
+```
+
+The bar shows it as a speedometer for Performance, a half speedometer for Balanced and a
+leaf for Quiet; left-click cycles, right-click opens rog-control-center. Z13 only, gated on
+hostname in `private_quickshell/Host.qml.tmpl`.
+
+`power-profile.sh publish` writes the active profile plus the two asusd will switch to on AC
+and on battery to `$XDG_RUNTIME_DIR/power-profile`, one per line, and the bar watches that
+file. That is what repaints the indicator when the fan key is pressed. The bar also runs
+`publish` every 30s, because asusd changes profile by itself when the power source changes
+and nothing runs the script then.
 
 ## Touchpad gestures
 
@@ -154,6 +201,21 @@ Not keys, but they fire the same way and are easy to forget.
 
 `autorotate.sh` follows the accelerometer through iio-sensor-proxy and remaps touch
 input to match the rotation.
+
+## The bar
+
+`exec_always ~/.config/sway/bar.sh` starts the bar. The script runs quickshell when
+`qs` is on `$PATH` and waybar otherwise, and kills whichever one it did not pick, so a
+reload after installing quickshell swaps the bar and leaves nothing behind.
+
+Both configurations ship on every machine. Deciding here rather than in a chezmoi
+template is deliberate: chezmoi reads `.chezmoiignore` while it builds the source
+state, before `run_once_before_00-install-packages.sh` has installed anything, so a
+`lookPath "qs"` branch would be one apply behind on a fresh machine.
+
+With neither installed the script sends a critical notification instead of leaving an
+empty strip at the top of the screen. mako is D-Bus activatable, so that works even
+though `exec mako` comes later in the config.
 
 ## Keeping this in sync
 

@@ -1,4 +1,4 @@
-# swaylock, Monokai-ish to match sway and waybar.
+# swaylock, Monokai-ish to match sway and the quickshell bar.
 
 daemonize
 ignore-empty-password

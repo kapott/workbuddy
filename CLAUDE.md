@@ -106,7 +106,7 @@ file re-triggers `mise install`. Keep that line if you touch the script. `includ
 the source directory, so rendering it by hand needs `chezmoi execute-template --source chezmoi/`.
 
 `run_once_before_00-install-packages.sh.tmpl` branches on `$ID` from `/etc/os-release` and installs
-the desktop set (sway, waybar, wofi, mako, kitty, grim, slurp, wl-clipboard) only when a display
+the desktop set (sway, quickshell, wofi, mako, kitty, grim, slurp, wl-clipboard) only when a display
 session is detected. New distro support goes in that `case`.
 
 ## NixOS flake
@@ -169,10 +169,37 @@ through a trap. sway does not reliably reap what `exec` starts, and a blocking
 read on a sensor that may be silent for hours leaves orphans behind; that
 happened during testing before the timeout was added.
 
+## The bar is quickshell, and it is QML
+
+`chezmoi/private_dot_config/private_quickshell/` is the bar. It is a QtQuick shell:
+one `.qml` file per module, all flat in that directory because QML resolves types from the
+directory a file sits in. `chezmoi/private_dot_config/private_quickshell/README.md` is the
+reference for what each file does and what bit during the port; read it before editing a
+module.
+
+waybar is the fallback, not dead weight. `private_dot_config/private_sway/executable_bar.sh`
+is what `exec_always` runs: quickshell when `qs` is on `$PATH`, waybar otherwise, and it
+kills the loser. Debian, Ubuntu and Fedora package waybar and not quickshell, which is the
+whole reason `private_waybar/` is still here. The choice is made at start rather than in a
+chezmoi template because chezmoi reads `.chezmoiignore` before `run_once_before_*` installs
+anything, so a `lookPath` branch is one apply behind on a fresh machine.
+
+Three things that decide whether a change works:
+
+- `Host.qml.tmpl` is the only templated file. Per-machine hardware paths go there, not into
+  a module. It is also why `qs -p` straight from the source directory fails: `Host.qml`
+  only exists after chezmoi renders it.
+- Icons live in `Glyph.qml` as codepoints. Check the glyph *name* against the font, not
+  just that the codepoint resolves; two values in the first draft were present and wrong.
+- `power-profile.sh` and the `PowerProfile` module are one unit. The script writes
+  `$XDG_RUNTIME_DIR/power-profile` on every change and the module watches that file, which
+  is how the ROG fan key repaints the bar. Change the format on one side and change it on
+  the other.
+
 ## Wayland migration
 
 `chezmoi/i3-to-sway.md` is the mapping table for the X11 to Wayland move (i3 to sway, polybar to
-waybar, rofi to wofi, dunst to mako, feh to swaybg, flameshot to grim plus slurp). The i3 and polybar
+quickshell, rofi to wofi, dunst to mako, feh to swaybg, flameshot to grim plus slurp). The i3 and polybar
 roles under `roles/` are the superseded side of that table. Window matching changed from `class` to
 `app_id`, which is the thing that silently breaks a ported rule.
 
