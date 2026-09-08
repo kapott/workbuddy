@@ -145,6 +145,7 @@ All of these carry `--locked`, so they still work on the lock screen.
 | `XF86AudioMute` / `XF86AudioMicMute` | mute output / microphone |
 | `XF86AudioPlay` / `XF86AudioNext` / `XF86AudioPrev` | playerctl play-pause, next, previous |
 | `XF86MonBrightnessUp` / `XF86MonBrightnessDown` | screen brightness 5% up/down |
+| `XF86TouchpadToggle` (Fn+F10 on the cover) | enable/disable the touchpad, `input type:touchpad events toggle` |
 
 **Z13** only:
 
