@@ -1,0 +1,12 @@
+show=drun
+width=640
+height=420
+prompt=
+insensitive=true
+allow_images=true
+image_size=28
+term=kitty
+hide_scroll=true
+no_actions=true
+gtk_dark=true
+key_expand=Tab

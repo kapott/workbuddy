@@ -44,6 +44,10 @@ window#waybar.hidden {
 #battery,
 #cpu,
 #memory,
+#temperature,
+#backlight,
+#bluetooth,
+#idle_inhibitor,
 #network,
 #pulseaudio,
 #tray,
@@ -113,4 +117,33 @@ window#waybar.hidden {
 #tray > .needs-attention {
     -gtk-icon-effect: highlight;
     background-color: #A54242;
+}
+
+#temperature {
+    color: #8ABEB7;
+}
+
+#temperature.critical {
+    color: #A54242;
+}
+
+#backlight {
+    color: #F0C674;
+}
+
+#bluetooth {
+    color: #8ABEB7;
+}
+
+#bluetooth.disabled,
+#bluetooth.off {
+    color: #707880;
+}
+
+#idle_inhibitor {
+    color: #707880;
+}
+
+#idle_inhibitor.activated {
+    color: #FD971F;
 }
