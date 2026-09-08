@@ -283,6 +283,13 @@ bindsym --locked XF86AudioPrev exec playerctl previous
 bindsym --locked XF86MonBrightnessUp exec brightnessctl set +5%
 bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
 
+# Touchpad toggle. Two devices claim this key and only one of them can be bound:
+# the keyboard cover sends KEY_F21, which xkb maps to XF86TouchpadToggle, while
+# "Asus WMI hotkeys" sends KEY_TOUCHPAD_TOGGLE (evdev 530). xkb keycodes stop at
+# 255, so that second one never reaches a keysym and cannot appear in a bindsym.
+# `events toggle` is rejected in a config command but allowed from a binding.
+bindsym --locked XF86TouchpadToggle input type:touchpad events toggle enabled disabled
+
 {{ if eq .chezmoi.hostname "endling" -}}
 # Z13 keyboard cover backlight, via the asus::kbd_backlight LED.
 bindsym --locked XF86KbdBrightnessUp exec brightnessctl -d asus::kbd_backlight set +1
