@@ -1,3 +1,10 @@
+# Where the dotfiles are read from. `chezmoi init --source <path>` knows the
+# path but does not remember it, so without this line every later command needs
+# --source again and a bare `chezmoi apply` reads ~/.local/share/chezmoi, which
+# on a checkout like this one does not exist. .chezmoi.sourceDir is whatever
+# init was pointed at, so this stays right on a machine that clones elsewhere.
+sourceDir = "{{ .chezmoi.sourceDir }}"
+
 [data]
     name = "{{ promptStringOnce . "name" "Git user name" }}"
     email = "{{ promptStringOnce . "email" "Git email" }}"
