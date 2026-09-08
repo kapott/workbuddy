@@ -95,10 +95,20 @@ fake_mac_address() {
 	date | md5sum | sed -r 's/(..){3}/\1:/g;s/\s+-$//'
 }
 
-# Usage: genpass <length (optional, default is 25)>
-# Generate a password using openssl rand
+# Usage: genpass            -> 6-word diceware, for something a human types
+#        genpass -a [len]   -> len chars A-Za-z0-9, default 40, for machines
+# Wraps mkpw from personal-tools. The old implementation was
+# `openssl rand -base64`, which emits + / and =. Those three characters break
+# differently in every layer a secret travels through: + decodes as a space in a
+# form-urlencoded body, / and = collide with base64 padding and URL paths. The
+# failure surfaces as an auth error that points nowhere near the secret, which
+# is how a Paperless OIDC client burned an afternoon.
 genpass() {
-  command -v openssl >/dev/null 2>&1 && openssl rand -base64 ${1:-"25"} | sed 's/..$//'
+  if ! command -v mkpw >/dev/null 2>&1; then
+    echo "genpass: mkpw not found, see personal-tools" >&2
+    return 1
+  fi
+  mkpw "$@"
 }
 
 gpg_agent_start() {
