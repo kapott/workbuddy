@@ -50,6 +50,7 @@ window#waybar.hidden {
 #idle_inhibitor,
 #network,
 #pulseaudio,
+#custom-power-profile,
 #tray,
 #mode,
 #window {
@@ -132,6 +133,18 @@ window#waybar.hidden {
 }
 
 #bluetooth {
+    color: #8ABEB7;
+}
+
+#custom-power-profile.performance {
+    color: #A54242;
+}
+
+#custom-power-profile.balanced {
+    color: #F0C674;
+}
+
+#custom-power-profile.quiet {
     color: #8ABEB7;
 }
 

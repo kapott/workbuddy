@@ -22,6 +22,7 @@ than JSON so the rendered file stays plain JSON.
         "cpu",
         "memory",
         "temperature",
+        "custom/power-profile",
         "battery",
         "clock",
         "tray"
@@ -136,5 +137,15 @@ than JSON so the rendered file stays plain JSON.
         "on-click": "pavucontrol",
         "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
         "scroll-step": 5
+    },
+
+    "custom/power-profile": {
+        "exec": "$HOME/.config/sway/power-profile.sh status",
+        "return-type": "json",
+        "interval": 30,
+        "signal": 8,
+        "on-click": "$HOME/.config/sway/power-profile.sh next",
+        "on-click-right": "rog-control-center",
+        "format": "{}"
     }
 }

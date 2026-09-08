@@ -1,0 +1,29 @@
+pragma Singleton
+
+// Hardware that differs per machine, behind a .chezmoi.hostname branch the same
+// way private_sway/config.tmpl does it. Without the branch every host would get
+// endling's backlight device and hwmon sensor, and those modules then render
+// nothing and log no error.
+//
+// Both are globs rather than fixed paths, and the module takes the first match.
+// hwmon directories are numbered in probe order, so k10temp is hwmon6 on one boot
+// and hwmon4 on the next; expanding a glob at startup is the difference between
+// reading the CPU and silently reading whatever else registered first.
+
+import Quickshell
+
+Singleton {
+{{- if eq .chezmoi.hostname "endling" }}
+    readonly property string backlightGlob: "/sys/class/backlight/amdgpu_bl1"
+    readonly property string temperatureGlob: "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon*/temp1_input"
+    // asusd owns the fan and power profile on the Z13. power-profile.sh wraps
+    // asusctl for the bar, the ROG fan key and the CLI alike.
+    readonly property bool asusProfile: true
+{{- else }}
+    readonly property string backlightGlob: "/sys/class/backlight/*"
+    readonly property string temperatureGlob: "/sys/class/thermal/thermal_zone0/temp"
+    readonly property bool asusProfile: false
+{{- end }}
+
+    readonly property int temperatureCritical: 90
+}

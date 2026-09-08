@@ -34,7 +34,13 @@ case "$DISTRO" in
         sudo apt install -y git vim tmux zsh curl
         # Desktop packages (Wayland/Sway)
         if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] || [ -n "$XDG_SESSION_TYPE" ]; then
-            sudo apt install -y sway waybar wofi mako-notifier kitty grim slurp wl-clipboard swaylock swayidle swaybg
+            sudo apt install -y sway wofi mako-notifier kitty grim slurp wl-clipboard swaylock swayidle swaybg
+            # ~/.config/sway/bar.sh takes quickshell when it is there and waybar
+            # otherwise. Debian and Ubuntu package neither quickshell nor a way to
+            # build it without work, so waybar is what gets installed here. Build
+            # quickshell from https://quickshell.outfoxxed.me to switch; bar.sh
+            # picks it up on the next sway reload.
+            command -v qs >/dev/null || sudo apt install -y waybar
         fi
         ;;
     fedora)
@@ -42,7 +48,11 @@ case "$DISTRO" in
         sudo dnf install -y git vim tmux zsh curl
         # Desktop packages (Wayland/Sway)
         if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] || [ -n "$XDG_SESSION_TYPE" ]; then
-            sudo dnf install -y sway waybar wofi mako kitty grim slurp wl-clipboard swaylock swayidle swaybg
+            sudo dnf install -y sway wofi mako kitty grim slurp wl-clipboard swaylock swayidle swaybg
+            # quickshell lives in the errornointernet/quickshell COPR rather than
+            # in Fedora proper, so waybar is the bar here. Enable that COPR and
+            # ~/.config/sway/bar.sh switches over on the next sway reload.
+            command -v qs >/dev/null || sudo dnf install -y waybar
         fi
         ;;
     arch|manjaro|cachyos)
@@ -55,6 +65,11 @@ case "$DISTRO" in
                 {{ .packages.arch.core | join " " }} \
                 {{ .packages.arch.tools | join " " }} \
                 {{ .packages.arch.desktop | join " " }}
+            # quickshell is in packages.arch.core, so this only fires when that
+            # install failed or the package left the repositories. bar.sh needs
+            # one of the two to exist or the session comes up without a bar.
+            command -v qs >/dev/null || command -v waybar >/dev/null || \
+                sudo pacman -S --needed --noconfirm waybar
         fi
         ;;
     nixos)

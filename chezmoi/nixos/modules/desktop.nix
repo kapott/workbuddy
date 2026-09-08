@@ -9,7 +9,7 @@
       swaylock
       swayidle
       swaybg
-      waybar
+      quickshell
       wofi
       mako
       grim

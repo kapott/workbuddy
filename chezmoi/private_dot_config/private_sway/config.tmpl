@@ -288,8 +288,11 @@ bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
 bindsym --locked XF86KbdBrightnessUp exec brightnessctl -d asus::kbd_backlight set +1
 bindsym --locked XF86KbdBrightnessDown exec brightnessctl -d asus::kbd_backlight set 1-
 
-# ASUS fan/performance profile. asusd owns the actual switching.
-bindsym XF86Launch4 exec asusctl profile -n && notify-send "ASUS profile" "$(asusctl profile -p)"
+# ASUS fan/performance profile. asusd owns the actual switching; the script wraps
+# asusctl so this binding and the bar indicator cannot drift apart, and so a CLI
+# rename breaks one file instead of two. It also refreshes the bar on the spot,
+# by rewriting the state file the indicator watches.
+bindsym XF86Launch4 exec ~/.config/sway/power-profile.sh next
 # ROG key opens the vendor control centre.
 bindsym XF86Launch1 exec rog-control-center
 
@@ -311,7 +314,7 @@ hide_edge_borders smart
 smart_borders on
 title_align center
 
-# Monokai-inspired, matching the waybar and mako palettes.
+# Monokai-inspired, matching the quickshell and mako palettes.
 set $background #2e2e2e
 set $comment    #797979
 set $white      #d6d6d6
@@ -354,7 +357,9 @@ for_window [app_id="^.*"] inhibit_idle fullscreen
 
 ### Startup
 
-exec_always ~/.config/waybar/launch.sh
+# quickshell if it is installed, waybar otherwise. bar.sh decides at start, not
+# chezmoi at apply, so installing the other one takes a reload and no re-apply.
+exec_always ~/.config/sway/bar.sh
 
 # autotiling picks the split direction from the focused window's shape, which is
 # what makes an ultrawide usable without constant Mod+minus / Mod+bar. Optional:
