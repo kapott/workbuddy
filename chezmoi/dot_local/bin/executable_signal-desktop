@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# Launch Signal with the safeStorage backend it was encrypted with.
+#
+# Electron picks its password store from XDG_CURRENT_DESKTOP at every start, and
+# Signal records in config.json which backend actually encrypted the DB key. Boot
+# the same machine into another compositor and the two disagree:
+#
+#   Detected change in safeStorage backend, can't decrypt DB key
+#   (previous: kwallet6, current: basic_text)
+#   ERROR CORE sqlcipher_page_cipher: hmac check failed for pgno=1
+#
+# Nothing is wrong with the wallet; Chromium simply never asked it. Passing
+# --password-store= pins the backend that owns the key, so the same profile opens
+# under Plasma, sway or a bare TTY session.
+set -euo pipefail
+
+readonly SIGNAL_BINARIES=(/usr/bin/signal-desktop /usr/bin/signal-desktop-beta /opt/Signal/signal-desktop)
+readonly SIGNAL_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/Signal/config.json"
+
+# Electron reports the backend with underscores; the command line spells it with
+# dashes, and its "basic" is Electron's "basic_text".
+backend_to_flag() {
+    case "$1" in
+        basic_text) echo basic ;;
+        *) echo "${1//_/-}" ;;
+    esac
+}
+
+# The bus name each backend talks to. Activatable counts: kwalletd6 is started on
+# demand and inherits the wallet the PAM handover already unlocked.
+backend_bus_name() {
+    case "$1" in
+        kwallet6) echo org.kde.kwalletd6 ;;
+        kwallet5) echo org.kde.kwalletd5 ;;
+        kwallet) echo org.kde.kwalletd ;;
+        gnome_libsecret | gnome_keyring | gnome_any) echo org.freedesktop.secrets ;;
+        *) echo "" ;;
+    esac
+}
+
+bus_has_name() {
+    local name=$1
+    busctl --user list --no-legend --no-pager 2>/dev/null | grep -qw -- "$name"
+}
+
+recorded_backend() {
+    [[ -r $SIGNAL_CONFIG ]] || return 0
+    sed -n 's/.*"safeStorageBackend"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$SIGNAL_CONFIG" | head -1
+}
+
+# Only reached on a profile Signal has never encrypted, so any working store is a
+# fine answer. Prefer kwallet over the Secret Service name because ksecretd owns
+# both here and the kwallet API is the one Electron detects without XDG hints.
+detect_backend() {
+    if bus_has_name org.kde.kwalletd6; then
+        echo kwallet6
+    elif bus_has_name org.freedesktop.secrets; then
+        echo gnome_libsecret
+    else
+        echo basic_text
+    fi
+}
+
+warn_when_store_is_absent() {
+    local backend=$1 bus_name
+    bus_name=$(backend_bus_name "$backend")
+    [[ -n $bus_name ]] || return 0
+    bus_has_name "$bus_name" && return 0
+    echo "signal-desktop: $backend is the recorded store but $bus_name is not on the session bus." >&2
+    echo "signal-desktop: Signal will fail to decrypt its database until that service runs." >&2
+}
+
+signal_binary() {
+    local candidate
+    for candidate in "${SIGNAL_BINARIES[@]}"; do
+        [[ -x $candidate ]] && { echo "$candidate"; return 0; }
+    done
+    echo "signal-desktop: no Signal binary found in ${SIGNAL_BINARIES[*]}" >&2
+    return 1
+}
+
+main() {
+    local backend binary
+    backend=$(recorded_backend)
+    [[ -n $backend ]] || backend=$(detect_backend)
+    warn_when_store_is_absent "$backend"
+    binary=$(signal_binary)
+    exec "$binary" "--password-store=$(backend_to_flag "$backend")" "$@"
+}
+
+main "$@"
