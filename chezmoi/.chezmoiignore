@@ -4,6 +4,10 @@
 README.md
 LICENSE
 
+# Repo documentation that happens to sit next to the dotfiles. Without this it
+# lands in $HOME as ~/i3-to-sway.md, which is exactly where notes go to die.
+i3-to-sway.md
+
 # Ignore NixOS files (applied separately via nixos-rebuild)
 nixos/
 
@@ -14,6 +18,8 @@ nixos/
 .config/quickshell/
 .config/waybar/
 .config/mako/
+.local/bin/signal-desktop
+.local/share/applications/
 {{ end }}
 
 {{ if ne .chezmoi.os "darwin" }}
