@@ -9,14 +9,15 @@ independent provisioning systems that each own a different slice of the machine.
 together, so a change in one does not reach the others.
 
 1. `chezmoi/` is the current system. It manages the dotfiles themselves plus the install scripts that
-   put packages, mise, oh-my-zsh, Vundle and fonts on the machine.
+   put packages, mise, oh-my-zsh, Vundle, fonts and the login shell on the machine.
 2. `chezmoi/nixos/` is a NixOS flake for one host (`legion`, a Lenovo Legion 16ACH6H). Chezmoi
    explicitly ignores it (`.chezmoiignore`); `nixos-rebuild` applies it.
 3. `roles/` plus `local*.yml` is the older Ansible layer, kept for reference. It symlinks dotfiles
    out of `roles/<tool>/files/` instead of rendering them.
 
 Layers 1 and 3 both ship a bash config and they have drifted apart. `roles/bash/files/bashrc.d/` has
-`22-pomodoro` and `99-z` that `chezmoi/dot_bashrc.d/` lacks, and four of the shared files differ.
+`22-pomodoro` and `99-z` that `chezmoi/dot_bashrc.d/` lacks, and six of the seven shared files differ.
+The chezmoi copy is the one that gets worked on, so the gap only widens.
 When editing shell config, decide which layer is in play and say so; do not assume the two are
 copies of each other.
 
@@ -32,10 +33,34 @@ Fish is the login shell on `endling` (`getent passwd`), so a change that only la
 reaches nothing the user actually types into. When you add an alias or function, add it in both
 places or say plainly that you did not.
 
+Which shell that is comes from a `chezmoi init` prompt, and all three are installed either way, so
+no shell is "the" one in the source. `run_once_after_20-set-login-shell.sh.tmpl` runs the `chsh`. It
+refuses rather than fails when it cannot (no password prompt available, shell missing, shell not in
+`/etc/shells`), and it compares the current and wanted shell through `readlink -f`, because
+`command -v fish` answers `/usr/bin/fish` where passwd may hold `/bin/fish`.
+
 The fish config deliberately does not source `/usr/share/cachyos-fish-config/cachyos-config.fish`.
 The parts worth having were copied into `conf.d/`; `done.fish` is the one piece still sourced by
 path. Two CachyOS aliases were left out on purpose and should stay out: `apt`/`apt-get` mapped onto
 `man pacman`, which shadows the real binaries inside a Debian container, and `wget='wget -c'`.
+
+The prompt is written twice and has to stay written twice: `dot_bashrc.d/01-prompt` for bash
+and `private_dot_config/private_fish/functions/fish_prompt.fish` for fish. Same shape (time,
+`user@host`, cwd, git branch, then the exit status on its own line) and the same four colours,
+256-colour indices in bash and the matching hex in fish because `set_color` takes no index. Change
+one and change the other. zsh uses powerlevel10k instead and matches neither.
+
+`01-prompt` appends to `PROMPT_COMMAND` rather than assigning it. Arch's `/etc/bash.bashrc` fills
+that variable as an array to write the window title, and mise adds its own entry; a plain assignment
+drops both silently.
+
+CachyOS ships no bash config, so there is nothing to borrow there. `/etc/skel/.bashrc` is the stock
+ten-line Arch file. The two shells the distro does dress up are zsh, through `cachyos-zsh-config`,
+which brings powerlevel10k, syntax highlighting and autosuggestions, and fish, through
+`cachyos-fish-config`, which brings the eza aliases and `done.fish` and no prompt at all. Pieces of
+both were copied into the bash and zsh configs here, by path and each behind a file test, the way
+the fish config already treats them. Sourcing either package wholesale is the thing to avoid, and
+the reason is the one in the `cachyos-config.fish` paragraph above.
 
 `fish_add_path` in `conf.d/00-env.fish` uses `-g`. Without the flag it writes to the universal
 `fish_user_paths`, which already exists on this machine, so every shell start would persist paths
@@ -86,16 +111,20 @@ Filenames in `chezmoi/` are the mechanism, not decoration. Get a prefix wrong an
 the wrong place with the wrong mode.
 
 - `dot_foo` becomes `~/.foo`; `private_dot_config/` becomes `~/.config/` with mode 0600.
-- `.tmpl` makes chezmoi render Go template syntax. `.chezmoi.toml.tmpl` prompts once for `name` and
-  `email`, and those two values are what `dot_gitconfig.tmpl` interpolates. Any new prompt goes there.
+- `.tmpl` makes chezmoi render Go template syntax. `.chezmoi.toml.tmpl` prompts once for `name`,
+  `email` and `shell`. The first two are what `dot_gitconfig.tmpl` interpolates; `shell` is bash,
+  zsh or fish and reaches `run_once_after_20-set-login-shell.sh.tmpl`. Any new prompt goes there.
+  The prompt functions exist only during `chezmoi init`, so `chezmoi execute-template` on a file
+  that calls one fails with "function not defined"; render it against a config file instead, with
+  `--config <path to a chezmoi.toml>`.
 - OS branching inside a template is `{{ if eq .chezmoi.os "linux" }}`. Whole files are excluded per
   OS in `.chezmoiignore` instead; that is where the Wayland configs get hidden on macOS.
 
 ## Chezmoi script ordering
 
 `chezmoi/.chezmoiscripts/` runs on `apply`, ordered by `before`/`after` and then by the numeric
-prefix. The current order is packages, mise, oh-my-zsh (all `before`), then Vundle and fonts
-(`after`).
+prefix. The current order is packages, mise, oh-my-zsh (all `before`), then Vundle, fonts and the
+login shell (`after`).
 
 `run_once_*` scripts run once per machine, keyed on a hash of the script. Editing one makes it run
 again everywhere it has already run, so treat an edit as a re-run, not a patch.
@@ -105,9 +134,21 @@ carries `{{ include "private_dot_config/private_mise/config.toml" | sha256sum }}
 file re-triggers `mise install`. Keep that line if you touch the script. `include` resolves against
 the source directory, so rendering it by hand needs `chezmoi execute-template --source chezmoi/`.
 
+`install-sway.sh` installs packages the same way and for the same reason, through its own
+`missing_packages`. The two are separate scripts with one rule between them, so a change to how
+packages get installed belongs in both.
+
 `run_once_before_00-install-packages.sh.tmpl` branches on `$ID` from `/etc/os-release` and installs
 the desktop set (sway, quickshell, wofi, mako, kitty, grim, slurp, wl-clipboard) only when a display
 session is detected. New distro support goes in that `case`.
+
+Its Arch branch runs a full `pacman -Syu` only when none of the wanted packages is installed, which
+is what a machine being provisioned from nothing looks like. Otherwise it installs the missing names
+and nothing else. Both halves of that matter. `-Syu` on a machine in use upgrades the kernel on a day
+its owner did not pick, and `--needed` over the whole list is not a safe substitute, because it
+compares against the sync database and CachyOS versions sit above Arch's, so pacman reads the list as
+a downgrade request and refuses. See
+[`docs/kb/pacman-needed-wants-to-downgrade-cachyos-packages.md`](docs/kb/pacman-needed-wants-to-downgrade-cachyos-packages.md).
 
 ## NixOS flake
 
@@ -195,6 +236,27 @@ Three things that decide whether a change works:
   `$XDG_RUNTIME_DIR/power-profile` on every change and the module watches that file, which
   is how the ROG fan key repaints the bar. Change the format on one side and change it on
   the other.
+
+## Desktop entry overrides live in `dot_local/`
+
+`chezmoi/dot_local/share/applications/` shadows entries from
+`/usr/share/applications/`. XDG reads `$XDG_DATA_HOME` first, so a file with the
+same name wins for wofi, the tray and the URL handlers alike. Copy the packaged
+entry and change only the line you mean to change; anything you drop (MimeType,
+StartupWMClass) is lost, not inherited.
+
+`dot_local/bin/executable_signal-desktop` is the one such wrapper today. Signal
+records in `~/.config/Signal/config.json` which safeStorage backend encrypted its
+database key, Electron re-derives that backend from `XDG_CURRENT_DESKTOP` at
+every start, and the two disagree the moment you boot a different compositor. The
+wrapper reads the recorded value and passes `--password-store=`. Note the two
+spellings: Electron reports `basic_text` and `gnome_libsecret`, the flag takes
+`basic` and `gnome-libsecret`. See
+[`docs/kb/signal-refuses-to-start-after-switching-desktop.md`](docs/kb/signal-refuses-to-start-after-switching-desktop.md).
+
+These paths are not `private_`, unlike `private_dot_config/`. `~/.local/bin` and
+`~/.local/share/applications` already exist at 0755 on a provisioned machine and
+chezmoi would chmod them to 0700.
 
 ## Wayland migration
 
