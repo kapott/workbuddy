@@ -158,9 +158,14 @@ window's shape, so `Mod+-` and `Mod+|` are rarely needed.
 
 | Keys | Action |
 |---|---|
-| `Print` | whole screen to the clipboard |
-| `Mod+Print` | select a region, to the clipboard |
+| `Print` or `Mod+Ctrl+s` | whole screen to the clipboard |
+| `Mod+Print` or `Mod+Shift+s` | select a region, to the clipboard |
 | `Mod+Shift+Print` | select a region, saved to `~/Pictures/Screenshots/<timestamp>.png` |
+
+`Mod+Shift+s` and `Mod+Ctrl+s` exist because the Kinesis Adv360 Pro sends no `Print` at
+all, which left all three of these unreachable on that keyboard. `Mod+Shift+s` is the
+combination Windows uses for the same action. Saving a region to a file still answers
+only to `Mod+Shift+Print`. The `Print` bindings stay for machines that do have the key.
 
 ## Media and hardware keys
 
@@ -169,10 +174,21 @@ All of these carry `--locked`, so they still work on the lock screen.
 | Key | Action |
 |---|---|
 | `XF86AudioRaiseVolume` / `XF86AudioLowerVolume` | volume 5% up/down, capped at 150% |
+| `Mod+Ctrl+k` / `Mod+Ctrl+j` | the same, for keyboards without the media keys |
 | `XF86AudioMute` / `XF86AudioMicMute` | mute output / microphone |
+| `Mod+Ctrl+m` | mute output |
 | `XF86AudioPlay` / `XF86AudioNext` / `XF86AudioPrev` | playerctl play-pause, next, previous |
 | `XF86MonBrightnessUp` / `XF86MonBrightnessDown` | screen brightness 5% up/down |
 | `XF86TouchpadToggle` (Fn+F10 on the cover) | enable/disable the touchpad, `input type:touchpad events toggle` |
+
+The `Mod+Ctrl` trio is there for the Kinesis Adv360 Pro, which sends no `XF86Audio*` at
+all. Vertical along the vim letters, `k` up and `j` down. `h` and `l` stay out of it
+because `Mod+Ctrl+l` is the lock binding. There is no `Mod+Ctrl` twin for the microphone,
+brightness or playerctl keys; add one the same way if a keyboard needs it.
+
+None of the three reaches sway while a FreeRDP session holds focus, since that client
+takes a keyboard shortcuts inhibitor. `--inhibited` on the binding is what exempts it;
+see `sway(5)`.
 
 **Z13** only:
 
