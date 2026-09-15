@@ -379,6 +379,13 @@ assign [app_id="codium"] $ws4
 assign [class="VSCodium"] $ws4
 assign [app_id="signal"] $ws5
 assign [class="Signal"] $ws5
+# WhatsApp Web runs as a Chrome PWA, so its app_id is the extension id plus the
+# profile name. Match the id only, otherwise a second profile lands elsewhere.
+assign [app_id="^chrome-hnpfjngllnobngcgfapefoaidbinmjnm-"] $ws5
+# FreeRDP names itself after its backend: com.freerdp.client.sdl3 today,
+# .sdl on the SDL2 build, and class xfreerdp when it runs through XWayland.
+assign [app_id="^com\.freerdp\.client\."] $ws9
+assign [class="^(?i)xfreerdp$"] $ws9
 
 for_window [app_id="pavucontrol"] floating enable, resize set 900 600
 for_window [app_id="blueman-manager"] floating enable, resize set 900 600
