@@ -27,4 +27,14 @@ Singleton {
     readonly property int gap: 4
     readonly property int padding: 10
     readonly property int accentHeight: 3
+
+    // The clock overlay $mod+t raises. osdDuration is the floor under a tap and
+    // osdHoldLimit the ceiling over a hold, both in milliseconds.
+    readonly property int osdFontSize: 128
+    readonly property int osdSubFontSize: 26
+    readonly property int osdSubGap: 10
+    readonly property int osdPadding: 40
+    readonly property int osdRadius: 12
+    readonly property int osdDuration: 1000
+    readonly property int osdHoldLimit: 60000
 }

@@ -340,6 +340,19 @@ bindsym $mod+o exec ~/.config/sway/toggle-osk.sh
 
 bindsym $mod+v exec cliphist list | wofi --dmenu | cliphist decode | wl-copy
 
+### Big clock
+
+# The time, large, in the middle of the focused output, for as long as the key
+# is down. quickshell draws it and the call reaches it over quickshell's own IPC
+# socket, so on a machine running the waybar fallback this key does nothing.
+#
+# --no-repeat because the press would otherwise fire at the keyboard repeat rate
+# and spawn a qs process per repeat. sway remembers the matching --release
+# binding at the press and runs it on the next release event, so letting go of
+# Super before t hides the clock just the same.
+bindsym --no-repeat $mod+t exec qs ipc call osd clock
+bindsym --release $mod+t exec qs ipc call osd clockRelease
+
 ### Appearance
 
 gaps inner 8

@@ -18,6 +18,7 @@ elsewhere.
 | `Mod+Return` | kitty |
 | `Mod+Space` | wofi app launcher (`wofi --show drun`) |
 | `Mod+v` | clipboard history through wofi, back into the clipboard |
+| `Mod+t` | the time and date, large, in the middle of the focused output, while held |
 | `Mod+Shift+q` | kill focused window |
 | `Mod+Shift+c` | reload sway config |
 | `Mod+Shift+e` | exit sway, after a swaynag confirmation |
@@ -260,6 +261,18 @@ state, before `run_once_before_00-install-packages.sh` has installed anything, s
 With neither installed the script sends a critical notification instead of leaving an
 empty strip at the top of the screen. mako is D-Bus activatable, so that works even
 though `exec mako` comes later in the config.
+
+`Mod+t` runs `qs ipc call osd clock` and the matching `--release` binding runs
+`clockRelease`, so quickshell holds the time and date across the focused output for as
+long as the key is down. A tap still gets a full second. waybar has nothing equivalent,
+so that key does nothing on the machines running the fallback. The overlay is
+`BigClock.qml` in the quickshell config; its size and that second are `osdFontSize` and
+`osdDuration` in `Theme.qml`.
+
+The press binding needs `--no-repeat`, or holding the key fires it at the keyboard repeat
+rate and spawns a `qs` process for every repeat. The release binding fires whichever key
+goes up first: sway remembers the `--release` binding that matched at the press and runs
+it on the next release event, so letting go of Super before `t` hides the clock too.
 
 ## Keeping this in sync
 
