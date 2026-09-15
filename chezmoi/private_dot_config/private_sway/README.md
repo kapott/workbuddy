@@ -61,7 +61,7 @@ Do not bind `Mod+Ctrl+$left` / `Mod+Ctrl+$right` here. `$right` is `l`, so that 
 literally `Mod+Ctrl+l` and it silently steals the lock binding. sway reports it as
 "Overwriting binding mod4+ctrl+l".
 
-**Z13**: workspaces 1 to 4 prefer DP-5 (the ultrawide), 9 and 10 prefer eDP-1 (the
+**Z13**: workspaces 1 to 4 prefer `$uw` (the ultrawide), 9 and 10 prefer eDP-1 (the
 tablet panel). Sway falls back to the focused output when the named one is absent, so
 this is harmless undocked.
 
@@ -78,9 +78,36 @@ back to kanshi and the profile in `~/.config/kanshi/config`. From a terminal:
 ```bash
 ~/.config/sway/display.sh list                 # every connected output, on or off
 ~/.config/sway/display.sh extend right         # externals to the right of eDP-1
-~/.config/sway/display.sh extend up DP-5       # one named output, above
+~/.config/sway/display.sh extend up DP-4       # one named output, above
 ~/.config/sway/display.sh external-only        # eDP-1 off
-~/.config/sway/display.sh off DP-5             # one output off
+~/.config/sway/display.sh off DP-4             # one output off
+```
+
+`display.sh` takes connector names, and those move. Read the current one out of
+`display.sh list` rather than typing the one in this example; see the note under
+Outputs below.
+
+### Outputs are matched on EDID, not on connector name
+
+`config.tmpl` sets `$uw` to `"LG Electronics LG HDR WQHD+ 0x01010101"`, the ultrawide's
+`make model serial` as `swaymsg -t get_outputs` reports it, and every `output` block and
+workspace assignment uses that variable. `~/.config/kanshi/config` names the same monitor
+the same way in its `docked` profile. Change one and change the other.
+
+Connector names are not stable on amdgpu. This monitor has been DP-5 and DP-4 on this
+machine, and the index moves whenever the link is retrained, which the DPMS blank from
+swayidle is enough to do. A block keyed on the stale name matches nothing and the monitor
+comes back at its preferred mode, position auto, with the workspace assignments landing
+wherever sway felt like. That reads as "the layout resets itself overnight". See
+[`../../../docs/kb/display-layout-resets-after-the-screen-blanks.md`](../../../docs/kb/display-layout-resets-after-the-screen-blanks.md).
+
+eDP-1 keeps its connector name. Internal panels do not get renumbered, and `display.sh`
+and `panel-guard.sh` both take `eDP-1` as their default panel.
+
+Read the current names with:
+
+```bash
+swaymsg -t get_outputs -r | jq -r '.[] | "\(.name): \(.make) \(.model) \(.serial)"'
 ```
 
 It refuses to disable the last active output, and `external-only` refuses when no
@@ -93,7 +120,7 @@ panel disabled, so pulling the cable afterwards is what actually leaves sway wit
 output on. Two things prevent a dark screen there:
 
 - kanshi handles the ordinary case. Its `tablet` profile lists eDP-1 alone, so losing
-  DP-5 changes the matched profile and re-enables the panel.
+  the ultrawide changes the matched profile and re-enables the panel.
 - `panel-guard.sh` is the floor under that, started from the config with `exec`. It
   subscribes to sway's output events and turns the panel back on whenever zero outputs
   are active, one second after the event so kanshi gets first refusal. It covers what

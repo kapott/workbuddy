@@ -5,9 +5,16 @@
 # only earns its place for the docked case, where the layout differs from the
 # sum of the individual outputs. kanshi picks the first profile whose listed
 # outputs all match what is connected.
+#
+# The ultrawide is named by its EDID identifier rather than by connector. amdgpu
+# renumbers the DisplayPort connectors when the link is retrained, so the same
+# monitor has been DP-5 and DP-4 on this machine. A profile keyed on the old name
+# stops matching and kanshi silently applies nothing. The sway config keys the
+# same monitor the same way; change one and change the other. See
+# workbuddy/docs/kb/display-layout-resets-after-the-screen-blanks.md.
 
 profile docked {
-    output DP-5 enable mode 3840x1600@119.980Hz position 0,0 scale 1
+    output "LG Electronics LG HDR WQHD+ 0x01010101" enable mode 3840x1600@119.980Hz position 0,0 scale 1
     output eDP-1 enable mode 2560x1600@180.000Hz position 3840,320 scale 1.25
 }
 

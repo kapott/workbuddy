@@ -29,15 +29,28 @@ set $shots ~/Pictures/Screenshots
 # XWayland clients render blurry; set scale 1 if that bothers you more than the
 # small text does.
 #
-# DP-5 is the 3840x1600 ultrawide. Its EDID lists a 144Hz mode but advertises
-# 119.98 as preferred, so that is what is set here.
+# The 3840x1600 ultrawide is matched on its EDID identifier, not on a connector
+# name. The amdgpu connector index moves: this panel has come up as DP-5 and as
+# DP-4 on the same machine, and the kernel renumbers it whenever the link is
+# retrained, which a DPMS blank is enough to trigger. A block keyed on the old
+# name then matches nothing, the monitor falls back to its preferred mode at
+# position auto, and the workspace assignments below land on whatever output sway
+# picked. See docs/kb/display-layout-resets-after-the-screen-blanks.md.
+#
+# The identifier is `make model serial` joined by spaces, from
+# `swaymsg -t get_outputs`. Keeping the double quotes inside the value is what
+# makes sway read it as one token after substitution.
+#
+# Its EDID lists a 144Hz mode but advertises 119.98 as preferred, so that is what
+# is set here.
+set $uw '"LG Electronics LG HDR WQHD+ 0x01010101"'
 
 # Catch-all first, so an output that is neither of the two named below still
 # gets a background instead of swaybg logging "Could not find config for output"
 # and leaving it undrawn. Later blocks win.
 output * bg #2e2e2e solid_color
 
-output DP-5 {
+output $uw {
     mode 3840x1600@119.980Hz
     position 0 0
     scale 1
@@ -199,12 +212,12 @@ workspace_auto_back_and_forth yes
 {{ if eq .chezmoi.hostname "endling" -}}
 # Default homes for the two outputs. Sway falls back to the focused output when
 # the named one is absent, so this is safe undocked.
-workspace $ws1 output DP-5 eDP-1
-workspace $ws2 output DP-5 eDP-1
-workspace $ws3 output DP-5 eDP-1
-workspace $ws4 output DP-5 eDP-1
-workspace $ws9 output eDP-1 DP-5
-workspace $ws10 output eDP-1 DP-5
+workspace $ws1 output $uw eDP-1
+workspace $ws2 output $uw eDP-1
+workspace $ws3 output $uw eDP-1
+workspace $ws4 output $uw eDP-1
+workspace $ws9 output eDP-1 $uw
+workspace $ws10 output eDP-1 $uw
 {{- end }}
 
 bindsym $mod+Ctrl+greater move workspace to output right
