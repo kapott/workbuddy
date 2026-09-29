@@ -15,7 +15,12 @@ core = ["sway", "swaybg", "swayidle", "swaylock", "quickshell", "wofi", "mako", 
 # Screenshots, clipboard, brightness, media keys, and the two programs the bar
 # opens on a click: pavucontrol from the volume indicator, btop from the CPU one.
 # Both were already assumed by the waybar config and named nowhere.
-tools = ["grim", "slurp", "wl-clipboard", "cliphist", "brightnessctl", "playerctl", "wtype", "jq", "libnotify", "pavucontrol", "btop"]
+#
+# swayimg is the image viewer. grim and slurp take screenshots and nothing in
+# this list could open one, so the session had no way to look at its own output
+# without reaching for a browser or an app from another desktop. It is a native
+# Wayland viewer, so it does not drag in an X toolkit the way feh or eog would.
+tools = ["grim", "slurp", "wl-clipboard", "cliphist", "brightnessctl", "playerctl", "wtype", "jq", "libnotify", "pavucontrol", "btop", "swayimg"]
 # Display hotplug profiles, tray applets, screen sharing, Qt on Wayland, and the
 # accelerometer daemon autorotate.sh reads through monitor-sensor. wdisplays is
 # the escape hatch display.sh offers for a projector it lays out badly.
