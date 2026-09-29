@@ -232,6 +232,9 @@ bindsym $mod+Ctrl+Left focus output left
 
 bindsym $mod+p exec ~/.config/sway/display.sh menu
 bindsym $mod+Shift+p exec ~/.config/sway/display.sh internal-only
+# --locked because the black screen this recovers from usually follows an idle
+# blank, and swaylock is up by then. A modeset gives nothing away while locked.
+bindsym --locked $mod+Ctrl+p exec ~/.config/sway/display.sh kick
 
 ### Layout
 

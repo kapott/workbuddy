@@ -151,6 +151,53 @@ on() {
     notify "On: $n"
 }
 
+# Force a fresh modeset on outputs that claim to be working and show nothing.
+#
+# amdgpu on this machine can leave a display in a state where every layer reports
+# success (connector connected, DPMS on, mode set, atomic commit accepted, no
+# kernel error) while the panel receives no picture. Nothing fails, so the
+# compositor has no reason to retry and the screen stays black indefinitely. A
+# power-on does not recover it; tearing the CRTC down and building it again does.
+# Seen 2026-09-15 under both KWin and sway, see
+# laptop-troubleshooting/docs/kb/screen-stays-black-after-idle-display-off.md
+#
+# Positions are captured before the cycle and restored after, because sway
+# re-lays-out the remaining outputs while one is disabled and does not put them
+# back on its own.
+kick() {
+    local targets
+    targets="$(if [ -n "${1:-}" ]; then
+                   has "$1" || die "no such output: $1"; echo "$1"
+               else
+                   active_names
+               fi)"
+    [ -n "$targets" ] || die "no active output to kick"
+
+    local -a names=() places=()
+    local n x y
+    while read -r n; do
+        read -r x y < <(outputs | jq -r --arg n "$n" '.[] | select(.name == $n) | "\(.rect.x) \(.rect.y)"')
+        names+=("$n"); places+=("$x $y")
+    done <<<"$targets"
+
+    for n in "${names[@]}"; do swaymsg output "$n" disable >/dev/null; done
+    sleep 1
+    for n in "${names[@]}"; do swaymsg output "$n" enable >/dev/null; done
+    sleep 1
+
+    # This is the escape hatch from a dark screen, so never return leaving one
+    # disabled. One retry costs a second and covers a commit that did not land.
+    for n in "${names[@]}"; do
+        active_names | grep -qx "$n" || swaymsg output "$n" enable >/dev/null
+    done
+
+    local i
+    for i in "${!names[@]}"; do
+        swaymsg output "${names[$i]}" position ${places[$i]} >/dev/null
+    done
+    notify "Kicked: ${names[*]}"
+}
+
 list() {
     outputs | jq -r '.[] |
         "\(.name)\t\(if .active then "on " else "off" end)\t\(.rect.width)x\(.rect.height)+\(.rect.x)+\(.rect.y)\tscale \(.scale)\t\(.make) \(.model)"' |
@@ -199,6 +246,8 @@ usage: $0 <command>
   external-only                         only the external(s), $PANEL off
   off OUTPUT                            disable one output
   on OUTPUT                             enable one output
+  kick [OUTPUT]                         force a fresh modeset (black screen that
+                                        reports itself as working; Mod+Ctrl+p)
   list                                  show every connected output
   menu                                  wofi picker (bound to Mod+p)
 
@@ -212,6 +261,7 @@ case "${1:-menu}" in
     external-only) external_only ;;
     off)           shift; off "$@" ;;
     on)            shift; on "$@" ;;
+    kick)          shift; kick "$@" ;;
     list)          list ;;
     menu)          menu ;;
     -h|--help|help) usage ;;

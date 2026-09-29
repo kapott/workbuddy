@@ -72,6 +72,7 @@ this is harmless undocked.
 |---|---|
 | `Mod+p` | wofi display menu (`display.sh menu`) |
 | `Mod+Shift+p` | internal panel only, every external off |
+| `Mod+Ctrl+p` | force a fresh modeset on every active output (`display.sh kick`), also while locked |
 
 `display.sh` talks to the running sway and writes no config, so a replug hands control
 back to kanshi and the profile in `~/.config/kanshi/config`. From a terminal:
