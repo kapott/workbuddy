@@ -51,3 +51,11 @@ if command -v dbus-update-activation-environment >/dev/null 2>&1; then
     dbus-update-activation-environment --systemd \
         DISPLAY SWAYSOCK WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
 fi
+
+# Something on the bus can activate xdg-desktop-portal before this script has
+# run. It then sees no XDG_CURRENT_DESKTOP, skips sway-portals.conf, falls back
+# to gtk for everything and offers no Screenshot or ScreenCast at all, which
+# leaves flameshot and screen sharing with nothing to talk to. try-restart only
+# touches a portal that is already running, and the new one reads the values
+# imported above.
+systemctl --user try-restart xdg-desktop-portal.service
