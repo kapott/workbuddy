@@ -55,7 +55,7 @@ case "$DISTRO" in
         sudo apt install -y git vim tmux zsh fish curl
         # Desktop packages (Wayland/Sway)
         if session_has_display; then
-            sudo apt install -y sway wofi mako-notifier kitty grim slurp wl-clipboard swaylock swayidle swaybg
+            sudo apt install -y sway wofi mako-notifier kitty grim slurp flameshot wl-clipboard swaylock swayidle swaybg
             # ~/.config/sway/bar.sh takes quickshell when it is there and waybar
             # otherwise. Debian and Ubuntu package neither quickshell nor a way to
             # build it without work, so waybar is what gets installed here. Build
@@ -69,7 +69,7 @@ case "$DISTRO" in
         sudo dnf install -y git vim tmux zsh fish curl
         # Desktop packages (Wayland/Sway)
         if session_has_display; then
-            sudo dnf install -y sway wofi mako kitty grim slurp wl-clipboard swaylock swayidle swaybg
+            sudo dnf install -y sway wofi mako kitty grim slurp flameshot wl-clipboard swaylock swayidle swaybg
             # quickshell lives in the errornointernet/quickshell COPR rather than
             # in Fedora proper, so waybar is the bar here. Enable that COPR and
             # ~/.config/sway/bar.sh switches over on the next sway reload.

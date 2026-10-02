@@ -20,7 +20,11 @@ core = ["sway", "swaybg", "swayidle", "swaylock", "quickshell", "wofi", "mako", 
 # this list could open one, so the session had no way to look at its own output
 # without reaching for a browser or an app from another desktop. It is a native
 # Wayland viewer, so it does not drag in an X toolkit the way feh or eog would.
-tools = ["grim", "slurp", "wl-clipboard", "cliphist", "brightnessctl", "playerctl", "wtype", "jq", "libnotify", "pavucontrol", "btop", "swayimg"]
+#
+# flameshot is the rectangle capture on Mod+Shift+s, for when a screenshot needs
+# an arrow or a box drawn on it. It reads the screen through the Screenshot
+# portal, which is why xdg-desktop-portal-wlr in the desktop list matters to it.
+tools = ["grim", "slurp", "wl-clipboard", "cliphist", "brightnessctl", "playerctl", "wtype", "jq", "libnotify", "pavucontrol", "btop", "swayimg", "flameshot"]
 # Display hotplug profiles, tray applets, screen sharing, Qt on Wayland, and the
 # accelerometer daemon autorotate.sh reads through monitor-sensor. wdisplays is
 # the escape hatch display.sh offers for a projector it lays out badly.

@@ -161,12 +161,14 @@ window's shape, so `Mod+-` and `Mod+|` are rarely needed.
 | Keys | Action |
 |---|---|
 | `Print` or `Mod+Ctrl+s` | whole screen to the clipboard |
-| `Mod+Print` or `Mod+Shift+s` | select a region, to the clipboard |
+| `Mod+Print` | select a region, to the clipboard |
+| `Mod+Shift+s` | flameshot rectangle capture, annotate, then `Ctrl+c` to copy or `Ctrl+s` to save |
 | `Mod+Shift+Print` | select a region, saved to `~/Pictures/Screenshots/<timestamp>.png` |
 
 `Mod+Shift+s` and `Mod+Ctrl+s` exist because the Kinesis Adv360 Pro sends no `Print` at
 all, which left all three of these unreachable on that keyboard. `Mod+Shift+s` is the
-combination Windows uses for the same action. Saving a region to a file still answers
+combination Windows uses for a region capture, and opens flameshot so the selection can
+be annotated before it goes anywhere. Saving a region to a file still answers
 only to `Mod+Shift+Print`. The `Print` bindings stay for machines that do have the key.
 
 ## Media and hardware keys

@@ -281,15 +281,17 @@ bindgesture swipe:3:down floating toggle
 
 ### Screenshots
 #
-# The Kinesis Adv360 Pro has no Print key, so the region capture also answers to
-# Mod+Shift+s, the combination Windows uses for the same thing, and the whole
-# screen to Mod+Ctrl+s. The Print bindings stay for machines whose keyboard has
-# the key.
+# The Kinesis Adv360 Pro has no Print key, so Mod+Shift+s, the combination
+# Windows uses for a region capture, opens flameshot's rectangle capture, and
+# Mod+Ctrl+s takes the whole screen. flameshot gets its pixels from the
+# Screenshot portal, which xdg-desktop-portal-wlr serves; see session-env.sh for
+# why that portal sometimes comes up without it. The Print bindings stay for
+# machines whose keyboard has the key.
 
 bindsym Print exec grim - | wl-copy
 bindsym $mod+Ctrl+s exec grim - | wl-copy
 bindsym $mod+Print exec grim -g "$(slurp)" - | wl-copy
-bindsym $mod+Shift+s exec grim -g "$(slurp)" - | wl-copy
+bindsym $mod+Shift+s exec flameshot gui
 bindsym $mod+Shift+Print exec mkdir -p $shots && grim -g "$(slurp)" "$shots/$(date +%Y%m%d-%H%M%S).png"
 
 ### Media and hardware keys
