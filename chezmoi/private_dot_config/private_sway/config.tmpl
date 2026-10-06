@@ -140,7 +140,11 @@ exec swayidle -w \
         resume   'swaymsg "output * power on"' \
     before-sleep '$lock'
 
-bindsym $mod+Ctrl+l exec $lock
+# Lock, then blank the screens. SIGUSR1 makes swayidle fire its timeouts now, so its
+# resume hook powers the outputs back on at the next input. A direct "output * power off"
+# would leave them dark, because resume only follows an idle that swayidle started.
+# The sleep lets the key release pass first, since that release counts as activity.
+bindsym $mod+Ctrl+l exec '$lock; sleep 1; pkill -USR1 -x swayidle'
 
 ### Keys: launching
 
