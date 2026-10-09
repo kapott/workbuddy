@@ -37,4 +37,25 @@ Singleton {
     readonly property int osdRadius: 12
     readonly property int osdDuration: 1000
     readonly property int osdHoldLimit: 60000
+
+    // The level bar the volume, brightness and keyboard light keys raise.
+    readonly property int osdLevelWidth: 320
+    readonly property int osdLevelHeight: 56
+    readonly property int osdLevelMargin: 120
+    readonly property int osdLevelLabelWidth: 80
+    readonly property int osdLevelDuration: 1200
+
+    // Notification popups, sized like mako's config had them.
+    readonly property int notificationWidth: 300
+    readonly property int notificationMaxVisible: 5
+    readonly property int notificationImageSize: 48
+    readonly property int notificationBodyLines: 4
+
+    // The menu $mod+space opens, and the panels that share its frame.
+    readonly property color scrim: Qt.rgba(0, 0, 0, 0.35)
+    readonly property int menuWidth: 560
+    readonly property int menuRowHeight: 36
+    readonly property int menuMaxRows: 14
+    readonly property int menuRadius: 8
+    readonly property int menuIconSize: 22
 }

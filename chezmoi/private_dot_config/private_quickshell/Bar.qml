@@ -13,8 +13,11 @@ PanelWindow {
     required property var modelData
     screen: modelData
 
-    color: Theme.background
-    implicitHeight: Theme.barHeight
+    // Hidden is one transparent pixel with no exclusive zone. Unmapping the
+    // surface would end the idle inhibitor below, which belongs to it.
+    color: ShellState.barVisible ? Theme.background : "transparent"
+    implicitHeight: ShellState.barVisible ? Theme.barHeight : 1
+    exclusiveZone: ShellState.barVisible ? Theme.barHeight : 0
 
     anchors {
         top: true
@@ -22,14 +25,16 @@ PanelWindow {
         right: true
     }
 
-    // Held by the shell rather than by the indicator, so the inhibitor survives
-    // the indicator being restyled or moved.
+    // Held by the bar rather than by the indicator, so the inhibitor survives
+    // the indicator being restyled or moved. Its switch is in ShellState, where
+    // the toggle menu flips it too.
     IdleInhibitor {
-        id: idleInhibitor
         window: bar
+        enabled: ShellState.idleInhibited
     }
 
     RowLayout {
+        visible: ShellState.barVisible
         anchors.fill: parent
         anchors.leftMargin: Theme.gap
         anchors.rightMargin: Theme.gap
@@ -47,7 +52,8 @@ PanelWindow {
             Layout.fillHeight: true
         }
 
-        IdleInhibit { inhibitor: idleInhibitor }
+        DoNotDisturb {}
+        IdleInhibit {}
         Volume {}
         Backlight {}
         BluetoothStatus {}

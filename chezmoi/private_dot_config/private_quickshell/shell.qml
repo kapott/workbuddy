@@ -17,7 +17,15 @@ ShellRoot {
     // same sync as a side effect of reading I3.workspaces; asking here does not
     // depend on that. QtQml is imported for this line alone. Without it the
     // Component attached type does not exist and the shell fails to load.
-    Component.onCompleted: I3.refreshMonitors()
+    //
+    // Bindings and Menu are read here so the singletons exist. Bindings holds
+    // the sway subscription that turns `nop qs ...` bindings into calls, and
+    // Menu's Ipc target has to be registered before the first press reaches it.
+    Component.onCompleted: {
+        I3.refreshMonitors();
+        Bindings.prefix;
+        Menu.current;
+    }
 
     Variants {
         model: Quickshell.screens
@@ -32,4 +40,9 @@ ShellRoot {
 
         BigClock {}
     }
+
+    // One window, moved to the focused output when a level key fires.
+    OsdLevel {}
+
+    NotificationPopups {}
 }

@@ -33,7 +33,7 @@ Pill {
             if (root.audio)
                 root.audio.muted = !root.muted;
         } else {
-            Quickshell.execDetached(["pavucontrol"]);
+            Menu.toggle("audio");
         }
     }
 

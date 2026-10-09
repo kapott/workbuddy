@@ -1,6 +1,7 @@
-# The bar
+# The shell
 
-Quickshell, a QtQuick shell toolkit. Every file here is QML, and `qs` loads
+The bar, the menu, the panels, the on-screen displays and the notification
+daemon. Quickshell, a QtQuick shell toolkit. Every file here is QML, and `qs` loads
 `shell.qml` because `~/.config/quickshell/shell.qml` is the config it picks with
 no `-c` flag. Not deployed by chezmoi: `.chezmoiignore` drops `**/README.md`.
 
@@ -26,16 +27,27 @@ generated `qmldir` for nothing.
 | `Theme.qml` | the palette and the metrics, singleton |
 | `Glyph.qml` | every icon by codepoint, singleton |
 | `Host.qml.tmpl` | per-machine hardware paths, singleton, rendered by chezmoi |
-| `Osd.qml` | the IPC entry point for overlays, singleton |
+| `Osd.qml` | the IPC entry point for overlays, and the level keys, singleton |
 | `BigClock.qml` | the time and date across the focused output, held up by `Mod+t` |
+| `OsdLevel.qml` | the volume / brightness / keyboard light bar |
+| `Ipc.qml` | an `IpcHandler` that a sway binding can reach as well |
+| `IpcRegistry.qml` | every `Ipc` handler, so `Bindings` can call them, singleton |
+| `Bindings.qml` | turns `nop qs <target> <method>` bindings into calls, singleton |
+| `ShellState.qml` | the shared switches (idle inhibit, bar, do not disturb), singleton |
+| `Menu.qml` | the `Mod+space` menu: state and window, singleton |
+| `MenuRow.qml` | one row of the menu |
+| `MenuTree.js` | the static menus as data, and the search |
+| `*Panel.qml` | rows for the live menus: audio, bluetooth, network, tailscale, power, keys |
+| `Notifications.qml` | the notification server, popups list and history, singleton |
+| `NotificationPopups.qml`, `NotificationCard.qml` | the popups |
 
-The modules themselves: `Workspaces`, `SwayMode`, `WindowTitle`, `IdleInhibit`,
+The modules themselves: `Workspaces`, `SwayMode`, `WindowTitle`, `DoNotDisturb`, `IdleInhibit`,
 `Volume`, `Backlight`, `BluetoothStatus`, `NetworkStatus`, `CpuUsage`,
 `MemoryUsage`, `TemperatureStatus`, `PowerProfile`, `BatteryStatus`, `Clock`,
 `Tray`.
 
 `BigClock` is a second surface per screen, not a bar module. It sits hidden until sway's
-`Mod+t` runs `qs ipc call osd clock`; `Osd.qml` turns that call into a signal and every
+`Mod+t` binding (`nop qs osd clock`) reaches `Osd.qml`, which turns it into a signal; every
 BigClock listens, but only the one on the output sway calls focused draws. Font size and
 padding are `osd*` in `Theme.qml`.
 
@@ -56,18 +68,73 @@ Names avoid `Bluetooth` and `Network` on purpose: those are the singletons
 `Quickshell.Bluetooth` and `Quickshell.Networking` export, and a local type of
 the same name shadows them.
 
+## Key bindings without a process
+
+sway binds the shell's keys as `nop qs <target> <method> [arg]`. `nop` runs nothing, but
+sway still sends the binding event, command text included, to every IPC subscriber.
+`Bindings.qml` subscribes, parses the text and calls the matching function on an `Ipc`
+handler through `IpcRegistry`. The same function answers `qs ipc call <target> <method>`
+from a script. Measured on endling on 2026-10-09, 100 presses each, median key to handler:
+
+| Path | ms |
+|---|---|
+| `nop` + `Bindings.qml` | 2.0 |
+| `exec echo x \| socat` to a QML `SocketServer` | 5.2 |
+| `exec qs ipc call` | 19.0 |
+
+`exec qs ipc call` starts a whole Qt client per press. The sway config sets the commands as
+variables (`$launcher`, `$volup`, ...) in one block, chosen at `chezmoi apply` by whether
+`qs` is on `$PATH`, so the waybar fallback still gets wofi and wpctl.
+
+Targets: `menu` (toggle/open/close `<id>`), `osd` (clock, volume, mute, micMute,
+brightness, kbdLight), `state` (toggle `<switch>`), `notifications` (dismissNewest,
+dismissAll, invokeNewest, clearHistory).
+
+## The menu and the panels
+
+`Mod+space` opens the root menu, Omarchy's walker menu cut down to this machine. Typing at
+the top searches every leaf of the tree and every installed app. The static menus are data
+in `MenuTree.js`. Apps, the panels and the notification history are menus whose rows come
+live from a provider singleton (`AudioPanel.qml` and siblings). They share the frame, the
+search and the keys: Up/Down or Ctrl+j/k, Enter, Right into a submenu, Left/Right on a
+value such as volume, Escape to clear, back, close.
+
+| Keys | Opens |
+|---|---|
+| `Mod+space` | root menu |
+| `Mod+Shift+e` | system (lock, suspend, log out, reboot, shut down) |
+| `Mod+Ctrl+c` / `o` / `h` | capture / toggle / hardware |
+| `Mod+Ctrl+a` / `b` / `w` / `t` / `e` | audio / bluetooth / network / tailscale / power |
+| `Mod+slash` | every key binding, read from the running sway config |
+| `Mod+n` / `Mod+Shift+n` / `Mod+Alt+n` | dismiss newest / dismiss all / notification history |
+
+## Notifications
+
+`Notifications.qml` owns `org.freedesktop.Notifications` in place of mako. Popups sit top
+right like mako's did, history keeps the last 50 as plain copies, and do not disturb holds
+popups back (not critical ones) while history still records them. sway starts mako only
+when `qs` is missing. mako's D-Bus activation file also claims the name, so on endling
+`mako.service` is masked; without that, a notification sent while quickshell restarts
+starts mako, which then keeps the name.
+
+```bash
+systemctl --user mask mako.service      # done on endling 2026-10-09
+systemctl --user unmask mako.service    # to go back to mako
+```
+
 ## Interactions
 
 | Module | Left click | Right click | Scroll |
 |---|---|---|---|
 | Workspace | switch to it | | |
 | Idle inhibitor | toggle | | |
-| Volume | pavucontrol | mute | volume 5% |
+| Volume | audio panel | mute | volume 5% |
 | Backlight | | | brightness 5% |
-| Bluetooth | blueman-manager | | |
-| Network | | `kitty -e nmtui` | |
+| Bluetooth | bluetooth panel | | |
+| Network | network panel | `kitty -e nmtui` | |
 | CPU | `kitty -e btop` | | |
 | Power profile | cycle | rog-control-center | |
+| Battery | power panel | | |
 | Clock | show the date | | |
 | Tray item | activate | menu | |
 
@@ -102,6 +169,18 @@ chezmoi execute-template --source chezmoi \
   < chezmoi/private_dot_config/private_quickshell/Host.qml.tmpl > "$d/Host.qml"
 qs -p "$d"
 ```
+
+To test a binding without touching your real keys, bind a spare combination to the `nop`
+command at runtime and press it with wtype:
+
+```bash
+swaymsg 'bindsym Mod4+Ctrl+Shift+F12 nop qs menu toggle root'
+wtype -M logo -M ctrl -M shift -k F12 -m shift -m ctrl -m logo
+swaymsg 'unbindsym Mod4+Ctrl+Shift+F12'
+```
+
+Both the test instance and the running bar receive the event, so test a target the
+running bar does not have yet, or accept both reacting.
 
 A QML error is fatal and prints the whole chain, from `shell.qml` down to the
 line that failed. `Configuration Loaded` with no `ERROR` above it means the tree
@@ -139,6 +218,29 @@ windows below.
 only `Quickshell` until it needed that line. Without `import QtQml` the attached type
 does not exist and the whole shell refuses to load with
 `Non-existent attached object`, which names no file you would think to look at.
+
+**A handler reading a binding can see the old value.** `Menu.qml`'s `onViewChanged` read
+`current`, which is itself a binding on `view`. QML does not promise the binding has
+re-evaluated before the handler runs, so the handler saw the previous menu and a panel
+learned it was on screen one change late. It opened empty and filled on the second open.
+Derive from the changed property itself (`topOf(view)`).
+
+**`WifiNetwork.signalStrength` is 0 to 1.** Treated as a percentage it printed "1%" and
+drew the weakest bar for a network nmcli put at 86.
+
+**`Notification.expireTimeout` is milliseconds**, though typed as a double. `notify-send -t
+3000` arrives as 3000.
+
+**A surface that maps under a resting pointer gets a hover event.** The menu's selection
+jumped to whatever row sat under the mouse. The first position event after the list resets
+is ignored (`Menu.hover`), the same trick as Omarchy's `PointerMoveGate.qml`.
+
+**sway strips quotes and backslashes from a binding's command before it reports it.**
+`exec printf 'x\n' | ...` arrived without the newline. `nop qs` arguments therefore cannot
+hold spaces.
+
+**Hiding the bar must not unmap it.** The idle inhibitor belongs to the bar's surface and
+ends with it, so a hidden bar is one transparent pixel with no exclusive zone.
 
 **`I3.focusedMonitor` is null until someone asks for the monitor list.** Reading it is
 not what populates it. `Workspaces` happens to trigger the sync by reading

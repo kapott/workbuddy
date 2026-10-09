@@ -22,5 +22,5 @@ Pill {
         ? root.connected.map(d => d.name).join("\n")
         : "No device connected"
 
-    onClicked: Quickshell.execDetached(["blueman-manager"])
+    onClicked: Menu.toggle("bluetooth")
 }

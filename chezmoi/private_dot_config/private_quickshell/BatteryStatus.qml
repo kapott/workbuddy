@@ -35,4 +35,6 @@ Pill {
         return root.percent + "%, " + watts + ", " + hours + "h " + minutes + "m "
             + (root.charging ? "to full" : "left");
     }
+
+    onClicked: Menu.toggle("power")
 }

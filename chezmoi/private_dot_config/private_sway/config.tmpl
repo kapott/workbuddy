@@ -13,13 +13,46 @@ set $up k
 set $right l
 
 set $term kitty
-set $menu wofi --show drun
 set $lock swaylock -f
 
 font pango:Hack Nerd Font 11
 
 # XDG_PICTURES_DIR is Pictures on this user; screenshots go one level down.
 set $shots ~/Pictures/Screenshots
+
+# What the shell keys do. With quickshell they are `nop qs <target> <method>`:
+# nop runs nothing, sway still sends the binding to IPC subscribers, and
+# quickshell's Bindings.qml dispatches it. No process per press, which measured
+# 2.0 ms key to handler against 19 ms for `exec qs ipc call` (2026-10-09).
+# Volume and brightness then also draw a level bar.
+#
+# Decided at chezmoi apply, unlike bar.sh, which decides at sway start: a sway
+# config has no runtime conditional. After installing or removing quickshell,
+# run chezmoi apply again. sway expands these variables before it reports a
+# binding, so Bindings.qml sees the full `nop qs ...` text.
+{{ if lookPath "qs" -}}
+set $launcher nop qs menu toggle root
+set $system nop qs menu toggle system
+set $volup nop qs osd volume +5
+set $voldown nop qs osd volume -5
+set $mute nop qs osd mute
+set $micmute nop qs osd micMute
+set $brightup nop qs osd brightness +5
+set $brightdown nop qs osd brightness -5
+set $kbdup nop qs osd kbdLight +1
+set $kbddown nop qs osd kbdLight -1
+{{- else -}}
+set $launcher exec wofi --show drun
+set $system exec swaynag -t warning -m 'Exit sway?' -B 'Yes' 'swaymsg exit'
+set $volup exec wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+
+set $voldown exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+set $mute exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+set $micmute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+set $brightup exec brightnessctl set +5%
+set $brightdown exec brightnessctl set 5%-
+set $kbdup exec brightnessctl -d asus::kbd_backlight set +1
+set $kbddown exec brightnessctl -d asus::kbd_backlight set 1-
+{{- end }}
 
 {{ if eq .chezmoi.hostname "endling" -}}
 ### Outputs: ASUS ROG Flow Z13 GZ302EAC
@@ -149,12 +182,33 @@ bindsym $mod+Ctrl+l exec '$lock; sleep 1; pkill -USR1 -x swayidle'
 ### Keys: launching
 
 bindsym $mod+Return exec $term
-bindsym $mod+space exec $menu
+bindsym $mod+space $launcher
 bindsym $mod+Shift+q kill
 bindsym $mod+Shift+c reload
-bindsym $mod+Shift+e exec swaynag -t warning -m 'Exit sway?' -B 'Yes' 'swaymsg exit'
+bindsym $mod+Shift+e $system
 
 floating_modifier $mod normal
+
+### Keys: shell
+
+# Menus and panels drawn by quickshell, Omarchy's layout where the keys were
+# free here: Mod+Ctrl plus a letter. Network is w (wifi) and power e (energy)
+# because n and p were taken. Only with quickshell; see $launcher above.
+{{ if lookPath "qs" -}}
+bindsym $mod+Ctrl+c nop qs menu toggle capture
+bindsym $mod+Ctrl+o nop qs menu toggle toggle
+bindsym $mod+Ctrl+h nop qs menu toggle hardware
+bindsym $mod+Ctrl+a nop qs menu toggle audio
+bindsym $mod+Ctrl+b nop qs menu toggle bluetooth
+bindsym $mod+Ctrl+w nop qs menu toggle network
+bindsym $mod+Ctrl+t nop qs menu toggle tailscale
+bindsym $mod+Ctrl+e nop qs menu toggle power
+bindsym $mod+slash nop qs menu toggle keys
+
+bindsym $mod+n nop qs notifications dismissNewest
+bindsym $mod+Shift+n nop qs notifications dismissAll
+bindsym $mod+Mod1+n nop qs menu toggle notifications
+{{- end }}
 
 ### Keys: focus and movement
 
@@ -300,26 +354,26 @@ bindsym $mod+Shift+Print exec mkdir -p $shots && grim -g "$(slurp)" "$shots/$(da
 
 ### Media and hardware keys
 
-bindsym --locked XF86AudioRaiseVolume exec wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+
-bindsym --locked XF86AudioLowerVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
-bindsym --locked XF86AudioMute exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
-bindsym --locked XF86AudioMicMute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+bindsym --locked XF86AudioRaiseVolume $volup
+bindsym --locked XF86AudioLowerVolume $voldown
+bindsym --locked XF86AudioMute $mute
+bindsym --locked XF86AudioMicMute $micmute
 
 # The Kinesis Adv360 Pro sends no XF86Audio* keys, so the four above reach nothing
 # on that keyboard. These three repeat the volume commands on Mod+Ctrl, vertical
 # along the vim letters. Mod+Ctrl+l is the lock binding, which is why h and l stay
 # out of this.
 
-bindsym --locked $mod+Ctrl+k exec wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+
-bindsym --locked $mod+Ctrl+j exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
-bindsym --locked $mod+Ctrl+m exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+bindsym --locked $mod+Ctrl+k $volup
+bindsym --locked $mod+Ctrl+j $voldown
+bindsym --locked $mod+Ctrl+m $mute
 
 bindsym --locked XF86AudioPlay exec playerctl play-pause
 bindsym --locked XF86AudioNext exec playerctl next
 bindsym --locked XF86AudioPrev exec playerctl previous
 
-bindsym --locked XF86MonBrightnessUp exec brightnessctl set +5%
-bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym --locked XF86MonBrightnessUp $brightup
+bindsym --locked XF86MonBrightnessDown $brightdown
 
 # Touchpad toggle. Two devices claim this key and only one of them can be bound:
 # the keyboard cover sends KEY_F21, which xkb maps to XF86TouchpadToggle, while
@@ -330,8 +384,8 @@ bindsym --locked XF86TouchpadToggle input type:touchpad events toggle enabled di
 
 {{ if eq .chezmoi.hostname "endling" -}}
 # Z13 keyboard cover backlight, via the asus::kbd_backlight LED.
-bindsym --locked XF86KbdBrightnessUp exec brightnessctl -d asus::kbd_backlight set +1
-bindsym --locked XF86KbdBrightnessDown exec brightnessctl -d asus::kbd_backlight set 1-
+bindsym --locked XF86KbdBrightnessUp $kbdup
+bindsym --locked XF86KbdBrightnessDown $kbddown
 
 # ASUS fan/performance profile. asusd owns the actual switching; the script wraps
 # asusctl so this binding and the bar indicator cannot drift apart, and so a CLI
@@ -433,7 +487,9 @@ exec_always ~/.config/sway/bar.sh
 # what makes an ultrawide usable without constant Mod+minus / Mod+bar. Optional:
 # if the package is missing this line just fails quietly.
 exec_always "pkill -x autotiling; autotiling"
-exec mako
+# quickshell is the notification daemon when it runs (Notifications.qml); mako
+# only on the waybar fallback. Checked at sway start, like bar.sh.
+exec sh -c 'command -v qs >/dev/null || mako'
 exec /usr/lib/polkit-kde-authentication-agent-1
 exec wl-paste --watch cliphist store
 exec nm-applet --indicator

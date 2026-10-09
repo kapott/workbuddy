@@ -102,4 +102,44 @@ Singleton {
         if (decile >= 10) return batteryFull;
         return String.fromCodePoint(0xf007a + decile - 1);
     }
+
+    // The menu. All nf-md-*, looked up by glyph name in the font on 2026-10-09
+    // rather than by codepoint, so the name in each comment is the font's own.
+    readonly property string apps: String.fromCodePoint(0xf003b)             // md-apps
+    readonly property string camera: String.fromCodePoint(0xf0100)           // md-camera
+    readonly property string toggle: String.fromCodePoint(0xf0521)           // md-toggle_switch
+    readonly property string chip: String.fromCodePoint(0xf061a)             // md-chip
+    readonly property string power: String.fromCodePoint(0xf0425)            // md-power
+    readonly property string update: String.fromCodePoint(0xf06b0)           // md-update
+    readonly property string keyboard: String.fromCodePoint(0xf030c)         // md-keyboard
+    readonly property string keyboardLight: String.fromCodePoint(0xf0313)    // md-keyboard_variant
+    readonly property string lock: String.fromCodePoint(0xf033e)             // md-lock
+    readonly property string logout: String.fromCodePoint(0xf0343)           // md-logout
+    readonly property string restart: String.fromCodePoint(0xf0709)          // md-restart
+    readonly property string powerSleep: String.fromCodePoint(0xf0904)       // md-power_sleep
+    readonly property string monitor: String.fromCodePoint(0xf0379)          // md-monitor
+    readonly property string screenshot: String.fromCodePoint(0xf0e51)       // md-monitor_screenshot
+    readonly property string selection: String.fromCodePoint(0xf0489)        // md-selection
+    readonly property string draw: String.fromCodePoint(0xf0f49)             // md-draw
+    readonly property string textRecognition: String.fromCodePoint(0xf113d)  // md-text_recognition
+    readonly property string qrcode: String.fromCodePoint(0xf0432)           // md-qrcode
+    readonly property string gpu: String.fromCodePoint(0xf08ae)              // md-expansion_card
+    readonly property string touchpad: String.fromCodePoint(0xf0741)         // md-gesture_tap
+    readonly property string bar: String.fromCodePoint(0xf0293)              // md-fullscreen
+    readonly property string bell: String.fromCodePoint(0xf009a)             // md-bell
+    readonly property string bellOff: String.fromCodePoint(0xf009b)          // md-bell_off
+    readonly property string bellSleep: String.fromCodePoint(0xf00a0)        // md-bell_sleep
+    readonly property string packageUpdate: String.fromCodePoint(0xf03d6)    // md-package_variant
+    readonly property string download: String.fromCodePoint(0xf01da)         // md-download
+    readonly property string refresh: String.fromCodePoint(0xf0450)          // md-refresh
+    readonly property string cog: String.fromCodePoint(0xf0493)              // md-cog
+    readonly property string tune: String.fromCodePoint(0xf062e)             // md-tune
+    readonly property string laptop: String.fromCodePoint(0xf0322)           // md-laptop
+    readonly property string headphones: String.fromCodePoint(0xf02cb)       // md-headphones
+    readonly property string microphone: String.fromCodePoint(0xf036c)       // md-microphone
+    readonly property string wifiOn: String.fromCodePoint(0xf05a9)           // md-wifi
+    readonly property string vpn: String.fromCodePoint(0xf0582)              // md-vpn
+    readonly property string check: String.fromCodePoint(0xf012c)            // md-check
+    readonly property string chevronRight: String.fromCodePoint(0xf0142)     // md-chevron_right
+    readonly property string magnify: String.fromCodePoint(0xf0349)          // md-magnify
 }
