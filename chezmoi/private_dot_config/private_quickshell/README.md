@@ -247,6 +247,11 @@ empty string on the clipboard when slurp is cancelled, wiping what was there. Th
 capture items check slurp's exit status first (`MenuTree.js`). The sway config's `Print`
 bindings still have the old pattern.
 
+**A wrong Wi-Fi password can hang instead of failing.** NetworkManager asks a secret agent
+for a new password and waits. kded6 (plasma-nm) is still such an agent here and opened its own
+dialog, so `connectionFailed` never fired. `NetworkPanel` gives a join 20 s, then disconnects,
+forgets the new profile and reconnects the previous network.
+
 **A handler reading a binding can see the old value.** `Menu.qml`'s `onViewChanged` read
 `current`, which is itself a binding on `view`. QML does not promise the binding has
 re-evaluated before the handler runs, so the handler saw the previous menu and a panel

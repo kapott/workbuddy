@@ -28,10 +28,15 @@ Singleton {
 
     // All of the menu's state, replaced whole by update() so every binding that
     // reads it sees one consistent change.
-    property var view: ({ open: false, screen: null, stack: [], query: "", selected: 0, armed: -1, pointerLive: false })
+    // prompt is set while the field asks for a secret instead of a search:
+    // { label, submit(text) }. The typed secret lives in query until the
+    // prompt is submitted or left, and every way out clears it.
+    property var view: ({ open: false, screen: null, stack: [], query: "", selected: 0, armed: -1, pointerLive: false, prompt: null })
 
     readonly property string current: root.topOf(root.view)
-    readonly property var items: root.itemsFor(root.current, root.view.query, root.apps, root.panels, Usage.db)
+    readonly property var items: root.view.prompt
+        ? [{ label: root.view.prompt.label, sub: "Enter to connect, Escape to go back", icon: "lock", info: true }]
+        : root.itemsFor(root.current, root.view.query, root.apps, root.panels, Usage.db)
 
     // Menus whose rows are live data rather than MenuTree entries.
     readonly property var panels: ({
@@ -104,11 +109,11 @@ Singleton {
     }
 
     function open(id) {
-        root.update({ open: true, screen: root.focusedScreen(), stack: [id], query: "", selected: 0, armed: -1, pointerLive: false });
+        root.update({ open: true, screen: root.focusedScreen(), stack: [id], query: "", selected: 0, armed: -1, pointerLive: false, prompt: null });
     }
 
     function close() {
-        root.update({ open: false, stack: [], query: "", selected: 0, armed: -1, pointerLive: false });
+        root.update({ open: false, stack: [], query: "", selected: 0, armed: -1, pointerLive: false, prompt: null });
     }
 
     function toggle(id) {
@@ -119,12 +124,12 @@ Singleton {
     }
 
     function enter(id) {
-        root.update({ stack: root.view.stack.concat([id]), query: "", selected: 0, armed: -1, pointerLive: false });
+        root.update({ stack: root.view.stack.concat([id]), query: "", selected: 0, armed: -1, pointerLive: false, prompt: null });
     }
 
     function back() {
         if (root.view.stack.length > 1)
-            root.update({ stack: root.view.stack.slice(0, -1), query: "", selected: 0, armed: -1, pointerLive: false });
+            root.update({ stack: root.view.stack.slice(0, -1), query: "", selected: 0, armed: -1, pointerLive: false, prompt: null });
         else
             root.close();
     }
@@ -160,6 +165,8 @@ Singleton {
             return root.enter(item.menu);
         if (item.confirm && root.view.armed !== index)
             return root.update({ selected: index, armed: index });
+        if (item.prompt)
+            return root.update({ prompt: Object.assign({ back: { query: root.view.query, selected: index } }, item.prompt), query: "", armed: -1 });
         if (item.act && !item.close)
             return item.act();
         root.close();
@@ -184,7 +191,28 @@ Singleton {
         }
     }
 
+    // While a prompt is up only Enter and Escape mean anything; every other
+    // key, arrows included, belongs to the text field.
+    function handlePromptKey(event) {
+        const prompt = root.view.prompt;
+        if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) && root.view.query !== "") {
+            const secret = root.view.query;
+            root.close();
+            prompt.submit(secret);
+        } else if (event.key === Qt.Key_Escape || (event.key === Qt.Key_Backspace && root.view.query === "")) {
+            // Back to the search and the row the prompt came from. Dropping
+            // to an empty search left the selection on row 0, the Wi-Fi
+            // switch, and the next Enter turned Wi-Fi off (2026-10-09).
+            root.update({ prompt: null, query: prompt.back.query, selected: prompt.back.selected, pointerLive: false });
+        } else {
+            return;
+        }
+        event.accepted = true;
+    }
+
     function handleKey(event) {
+        if (root.view.prompt)
+            return root.handlePromptKey(event);
         const ctrl = event.modifiers & Qt.ControlModifier;
         const empty = root.view.query === "";
         const selectedItem = root.items[root.view.selected];
@@ -288,6 +316,7 @@ Singleton {
                         anchors.verticalCenter: parent.verticalCenter
                         width: parent.width - title.implicitWidth - Theme.iconSize - Theme.padding * 2
                         text: root.view.query
+                        echoMode: root.view.prompt ? TextInput.Password : TextInput.Normal
                         color: Theme.foreground
                         selectionColor: Theme.raised
                         font.family: Theme.fontFamily
@@ -298,7 +327,7 @@ Singleton {
 
                         Text {
                             visible: input.text === ""
-                            text: "Search"
+                            text: root.view.prompt ? "Password" : "Search"
                             color: Theme.dim
                             font: input.font
                         }

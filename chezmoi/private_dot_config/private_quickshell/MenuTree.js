@@ -25,6 +25,9 @@
 //   glyph: "<text>"         an icon computed from live data, instead of icon
 //   on: bool                draws a check, like state does for a switch
 //   sub: "<text>"           a dim second column
+//   prompt: { label, submit(text) }   Enter opens a password field in place of
+//                           the search; Enter there calls submit, Escape
+//                           returns to the search and row it came from
 //
 // Capture commands sleep first so the menu surface is gone before grim runs.
 // slurp's exit status is checked before anything reaches wl-copy: piped

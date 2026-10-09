@@ -2,9 +2,21 @@ pragma Singleton
 
 // Rows for the network panel: the Wi-Fi switch, then every network the radio
 // sees, connected first and then by signal. Enter on a known or open network
-// connects, on the connected one disconnects. A new secured network opens
-// `nmtui connect <ssid>` in kitty, which asks for the password; this shell has
-// no secret prompt of its own.
+// connects, on the connected one disconnects. A new secured network asks for
+// its password in the menu's own field and joins with connectWithPsk.
+//
+// That replaced `nmtui connect <ssid>`. NetworkManager leaves the current
+// Wi-Fi the moment the attempt starts, so closing nmtui without a password
+// left wlan0 off its network and a half-made profile behind (2026-10-09).
+// Here a failed join is reported, its new profile forgotten and the network
+// that was up before reconnected, so a wrong password costs a notification
+// and nothing else.
+//
+// A wrong password does not always fail. NetworkManager asks a secret agent
+// for a new one and waits, and on endling kded6 (plasma-nm) is such an agent:
+// it opened its own password dialog and the join hung in "need
+// authentication" with no connectionFailed. So a join that has not connected
+// after joinTimeoutMs counts as failed too, which also withdraws that dialog.
 //
 // The radio only scans while this panel is open.
 //
@@ -46,22 +58,77 @@ Singleton {
         return state + " · " + root.percent(network) + "%";
     }
 
+    // The one join in flight, if any. Followed until it connects or fails and
+    // then dropped, so a later outage on a network that joined fine can never
+    // reach the forget() below.
+    property var joining: null
+    // The Wi-Fi network that was up when the join started, to go back to.
+    property var previous: null
+    readonly property int joinTimeoutMs: 20000
+
+    function join(network, psk) {
+        root.previous = root.networks.find(n => n.connected) ?? null;
+        root.joining = network;
+        joinTimer.restart();
+        network.connectWithPsk(psk);
+    }
+
+    function failJoin(why) {
+        const network = root.joining;
+        root.joining = null;
+        joinTimer.stop();
+        root.notify("Could not join " + network.name, why);
+        network.disconnect();
+        network.forget();
+        root.previous?.connect();
+        root.previous = null;
+    }
+
+    Timer {
+        id: joinTimer
+        interval: root.joinTimeoutMs
+        onTriggered: if (root.joining && !root.joining.connected) root.failJoin("No connection after " + root.joinTimeoutMs / 1000 + "s. Wrong password?")
+    }
+
+    function notify(summary, body) {
+        Quickshell.execDetached(["notify-send", summary, body]);
+    }
+
+    Connections {
+        target: root.joining
+
+        function onConnectionFailed(reason) {
+            root.failJoin(reason === ConnectionFailReason.NoSecrets || reason === ConnectionFailReason.WifiClientFailed
+                || reason === ConnectionFailReason.WifiAuthTimeout ? "Wrong password?" : ConnectionFailReason.toString(reason));
+        }
+
+        function onConnectedChanged() {
+            if (!root.joining?.connected)
+                return;
+            root.notify("Joined " + root.joining.name, "");
+            root.joining = null;
+            root.previous = null;
+            joinTimer.stop();
+        }
+    }
+
     function rowFor(network) {
         const needsSecret = !network.known && network.security !== WifiSecurityType.Open;
-        return {
+        const row = {
             label: network.name,
             sub: root.statusOf(network),
             glyph: Glyph.wifi(root.percent(network)),
-            on: network.connected,
-            close: needsSecret,
-            act: () => network.connected ? network.disconnect()
-                : needsSecret ? Quickshell.execDetached(["kitty", "-e", "nmtui", "connect", network.name])
-                : network.connect()
+            on: network.connected
         };
+        if (needsSecret)
+            return Object.assign(row, { prompt: { label: "Password for " + network.name, submit: psk => root.join(network, psk) } });
+        return Object.assign(row, { act: () => network.connected ? network.disconnect() : network.connect() });
     }
 
     readonly property var items: [
-        { label: "Wi-Fi", icon: "wifiOn", on: Networking.wifiEnabled,
+        // Switching off asks for a second Enter: this is the first row, and one
+        // Enter too many after opening the panel would drop the connection.
+        { label: "Wi-Fi", icon: "wifiOn", on: Networking.wifiEnabled, confirm: Networking.wifiEnabled,
           act: () => Networking.wifiEnabled = !Networking.wifiEnabled },
         ...root.networks.map(root.rowFor),
         { label: "Connections", sub: "nmtui", icon: "cog", sh: "kitty -e nmtui" }

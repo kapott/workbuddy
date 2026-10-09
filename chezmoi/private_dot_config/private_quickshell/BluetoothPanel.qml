@@ -46,7 +46,9 @@ Singleton {
     }
 
     readonly property var adapterRows: !root.adapter ? [{ label: "No adapter", icon: "bluetoothOff", info: true }] : [
-        { label: "Bluetooth", icon: "bluetooth", on: root.adapter.enabled,
+        // Off asks for a second Enter, as in NetworkPanel: first row, and the
+        // mouse in use may be the one on this adapter.
+        { label: "Bluetooth", icon: "bluetooth", on: root.adapter.enabled, confirm: root.adapter.enabled,
           act: () => root.adapter.enabled = !root.adapter.enabled },
         { label: root.adapter.discovering ? "Scanning" : "Scan for devices", icon: "refresh", on: root.adapter.discovering,
           act: () => root.adapter.discovering = !root.adapter.discovering }

@@ -100,7 +100,8 @@ Singleton {
 
     readonly property var items: !root.loaded ? [{ label: "Reading tailscale status", icon: "vpn", info: true }]
         : root.status === null ? [{ label: "tailscaled not answering", icon: "vpn", info: true }] : [
-        { label: "Tailscale", sub: root.status.BackendState, icon: "vpn", on: root.running,
+        // Down asks for a second Enter, as in NetworkPanel.
+        { label: "Tailscale", sub: root.status.BackendState, icon: "vpn", on: root.running, confirm: root.running,
           act: () => root.tailscale([root.running ? "down" : "up"]) },
         ...root.exitRows,
         ...root.peers.map(peer => ({
