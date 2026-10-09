@@ -27,12 +27,20 @@
 //   sub: "<text>"           a dim second column
 //
 // Capture commands sleep first so the menu surface is gone before grim runs.
+// slurp's exit status is checked before anything reaches wl-copy: piped
+// straight through, a cancelled selection gave grim nothing and wl-copy then
+// put an empty string on the clipboard, wiping what was there.
+// No GPU mode menu: endling has one GPU (the Strix Halo iGPU, per lspci), so
+// supergfxctl's modes switch nothing, and picking one queued a mode change
+// for the next logout. Tried and removed on 2026-10-09.
+//
 // tesseract has only the Dutch model installed (`tesseract --list-langs`), which
 // reads English text well enough; add tesseract-data-eng for better results.
 
 var shots = "~/Pictures/Screenshots";
 var stamp = "$(date +%Y%m%d-%H%M%S)";
-var region = 'sleep 0.2; grim -g "$(slurp)" -';
+var pick = 'sleep 0.2; region=$(slurp) || exit 0; ';
+var region = pick + 'grim -g "$region" -';
 
 var menus = {
     root: {
@@ -59,12 +67,17 @@ var menus = {
             { label: "Screen to clipboard", icon: "screenshot", sh: "sleep 0.2; grim - | wl-copy" },
             { label: "Region to clipboard", icon: "selection", sh: region + " | wl-copy" },
             { label: "Region to file", icon: "download",
-              sh: "mkdir -p " + shots + " && " + region.replace(/ -$/, "") + " " + shots + "/" + stamp + ".png" },
+              sh: "mkdir -p " + shots + " && " + pick + 'grim -g "$region" ' + shots + "/" + stamp + ".png" },
             { label: "Annotate region", icon: "draw", sh: "flameshot gui" },
             { label: "Text from region", icon: "textRecognition",
-              sh: region + " | tesseract - - -l nld 2>/dev/null | wl-copy && notify-send 'Text copied'" },
+              sh: pick + 'text=$(grim -g "$region" - | tesseract - - -l nld 2>/dev/null); '
+                + '[ -n "$(printf %s "$text" | tr -d "[:space:]")" ] '
+                + '&& printf %s "$text" | wl-copy && notify-send "Text copied" "$text" '
+                + '|| notify-send "No text found"' },
             { label: "QR code from region", icon: "qrcode",
-              sh: region + " | zbarimg -q --raw - | wl-copy && notify-send 'QR code copied'" }
+              sh: pick + 'code=$(grim -g "$region" - | zbarimg -q --raw -); '
+                + '[ -n "$code" ] && printf %s "$code" | wl-copy && notify-send "QR code copied" "$code" '
+                + '|| notify-send "No QR code found"' }
         ]
     },
     toggle: {
@@ -82,7 +95,6 @@ var menus = {
         items: [
             { label: "Displays", icon: "monitor", menu: "displays" },
             { label: "Power profile", icon: "speedometer", menu: "profile" },
-            { label: "GPU mode", icon: "gpu", menu: "gpu" },
             { label: "Keyboard light", icon: "keyboardLight", menu: "kbdlight" },
             { label: "ROG Control Center", icon: "tune", sh: "rog-control-center" }
         ]
@@ -105,13 +117,6 @@ var menus = {
             { label: "Performance", icon: "speedometer", sh: "~/.config/sway/power-profile.sh set Performance" },
             { label: "Balanced", icon: "speedometerMedium", sh: "~/.config/sway/power-profile.sh set Balanced" },
             { label: "Quiet", icon: "leaf", sh: "~/.config/sway/power-profile.sh set Quiet" }
-        ]
-    },
-    gpu: {
-        title: "GPU mode, applies at next login",
-        items: [
-            { label: "Integrated", icon: "gpu", sh: "supergfxctl -m Integrated && notify-send 'GPU: Integrated' 'Log out to apply'" },
-            { label: "Hybrid", icon: "gpu", sh: "supergfxctl -m Hybrid && notify-send 'GPU: Hybrid' 'Log out to apply'" }
         ]
     },
     kbdlight: {

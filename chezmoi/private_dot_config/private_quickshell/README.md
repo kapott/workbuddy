@@ -237,6 +237,16 @@ only `Quickshell` until it needed that line. Without `import QtQml` the attached
 does not exist and the whole shell refuses to load with
 `Non-existent attached object`, which names no file you would think to look at.
 
+**A new QML file needs a restart, not a reload.** Quickshell's hot reload picks up edits to
+files it already knows, but a type added since it started stays unknown: after `Usage.qml`
+arrived, the running shell logged `ReferenceError: Usage is not defined` and the menu's
+lists came up empty. Run `~/.config/quickshell/launch.sh` after adding a file.
+
+**A cancelled capture must not reach wl-copy.** `grim -g "$(slurp)" - | wl-copy` puts an
+empty string on the clipboard when slurp is cancelled, wiping what was there. The menu's
+capture items check slurp's exit status first (`MenuTree.js`). The sway config's `Print`
+bindings still have the old pattern.
+
 **A handler reading a binding can see the old value.** `Menu.qml`'s `onViewChanged` read
 `current`, which is itself a binding on `view`. QML does not promise the binding has
 re-evaluated before the handler runs, so the handler saw the previous menu and a panel

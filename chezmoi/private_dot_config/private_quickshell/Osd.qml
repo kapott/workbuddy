@@ -54,8 +54,16 @@ Singleton {
         root.levelShown(icon, audio.muted ? 0 : Math.min(1, audio.volume), audio.muted ? "muted" : percent + "%");
     }
 
+    // A node pipewire has not finished describing reports default values, and
+    // writing to it writes those too. On 2026-10-09 the first mic mute after a
+    // bluetooth headset became the default source came back at volume 1.00
+    // instead of 0.62; not reproduced since, so this guard is cheap insurance.
+    function writable(node) {
+        return node?.ready && node.audio ? node.audio : null;
+    }
+
     function changeVolume(step) {
-        const audio = root.sink?.audio;
+        const audio = root.writable(root.sink);
         if (!audio)
             return;
         audio.volume = Math.max(0, Math.min(root.volumeCap, audio.volume + step / 100));
@@ -63,7 +71,7 @@ Singleton {
     }
 
     function toggleMute(node, icon) {
-        const audio = node?.audio;
+        const audio = root.writable(node);
         if (!audio)
             return;
         audio.muted = !audio.muted;

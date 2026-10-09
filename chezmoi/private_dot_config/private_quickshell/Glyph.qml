@@ -123,7 +123,6 @@ Singleton {
     readonly property string draw: String.fromCodePoint(0xf0f49)             // md-draw
     readonly property string textRecognition: String.fromCodePoint(0xf113d)  // md-text_recognition
     readonly property string qrcode: String.fromCodePoint(0xf0432)           // md-qrcode
-    readonly property string gpu: String.fromCodePoint(0xf08ae)              // md-expansion_card
     readonly property string touchpad: String.fromCodePoint(0xf0741)         // md-gesture_tap
     readonly property string bar: String.fromCodePoint(0xf0293)              // md-fullscreen
     readonly property string bell: String.fromCodePoint(0xf009a)             // md-bell
