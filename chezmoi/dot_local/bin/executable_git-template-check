@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# git-template-check: compare the git template (init.templateDir) against the
+# .git directory of one or more repos, and say per file whether it is the same,
+# differs or is missing. Exit 1 when any repo has drifted.
+#
+#   git-template-check [-q] [repo ...]   default repo: the current directory
+#   -q   print only repos that have drifted
+#
+# A missing file is fixed by running `git init` in the repo; it copies what is
+# absent and never overwrites. A differing hook is left alone on purpose,
+# because the repo may have replaced it deliberately.
+set -euo pipefail
+
+# pre-commit stamps the hooks it writes with this line, the template's included.
+PRE_COMMIT_MARKER='^# ID: 138fd403232d2ddd5efb44317e38bf03$'
+
+main() {
+	local quiet=0 template repo drift=0
+	case "${1:-}" in
+	-q) quiet=1 && shift ;;
+	-h | --help) usage && exit 0 ;;
+	esac
+	template="$(template_dir)"
+	[ -d "$template" ] || die "no template directory (init.templateDir is '${template:-unset}')"
+	for repo in "${@:-.}"; do
+		check_repo "$template" "$repo" "$quiet" || drift=1
+	done
+	return "$drift"
+}
+
+usage() {
+	sed -n '2,8s/^# \{0,1\}//p' "$(readlink -f "$0")"
+}
+
+template_dir() {
+	git config --global --path --get init.templateDir 2>/dev/null || true
+}
+
+check_repo() {
+	local template="$1" repo="$2" quiet="$3" git_dir report
+	git_dir="$(git -C "$repo" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" ||
+		{ echo "$repo: not a git repository" && return 1; }
+	report="$(compare_tree "$template" "$git_dir"; hooks_path_note "$repo")"
+	if ! grep -qv '^  same ' <<<"$report"; then
+		((quiet)) || echo "$repo: matches the template"
+		return 0
+	fi
+	echo "$repo:"
+	echo "$report"
+	return 1
+}
+
+compare_tree() {
+	local template="$1" git_dir="$2" rel
+	while IFS= read -r rel; do
+		echo "  $(file_state "$template/$rel" "$git_dir/$rel") $rel"
+	done < <(cd "$template" && find . -type f -printf '%P\n' | sort)
+}
+
+file_state() {
+	local wanted="$1" actual="$2"
+	if [ ! -e "$actual" ]; then
+		echo "missing"
+	elif cmp -s "$wanted" "$actual"; then
+		echo "same   "
+	elif grep -q "$PRE_COMMIT_MARKER" "$actual" 2>/dev/null; then
+		echo "differs (written by pre-commit install)"
+	else
+		echo "differs"
+	fi
+}
+
+# With core.hooksPath set, git ignores .git/hooks, template or not.
+hooks_path_note() {
+	local hooks_path
+	hooks_path="$(git -C "$1" config --get core.hooksPath 2>/dev/null)" || return 0
+	echo "  note   core.hooksPath=$hooks_path, so git does not run .git/hooks here"
+}
+
+die() {
+	echo "git-template-check: $*" >&2
+	exit 2
+}
+
+main "$@"

@@ -48,6 +48,9 @@ from `/etc/shells`, which is the one thing `chsh` refuses without saying why.
 - `.vimrc` (Vundle plugins, gruvbox theme, fzf integration)
 - `.tmux.conf` (Ctrl-Space prefix, vim navigation)
 - `.gitconfig` (aliases, colors, URL shortcuts)
+- `.git-template/` (pre-commit, commit-msg and pre-push hooks for every new repo,
+  via `init.templateDir`; run `git init` in an existing repo to add them, and
+  `git-template-check [repo ...]` to see which repos have drifted from it)
 - `.config/fish/` (login shell: conf.d fragments and autoloaded functions)
 - `.config/mise/config.toml` (tool versions)
 - `.config/kitty/` (terminal emulator)

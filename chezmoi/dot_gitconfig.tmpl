@@ -4,6 +4,8 @@
 
 [init]
 	defaultBranch = main
+	# pre-commit hooks for every new repo; `git init` adds them to an old one.
+	templateDir = ~/.git-template
 
 [credential]
 {{- if eq .chezmoi.os "darwin" }}
