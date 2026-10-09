@@ -21,6 +21,7 @@ import Quickshell.I3
 import Quickshell.Wayland
 import Quickshell.Widgets
 import "MenuTree.js" as MenuTree
+import "Frecency.js" as Frecency
 
 Singleton {
     id: root
@@ -30,7 +31,7 @@ Singleton {
     property var view: ({ open: false, screen: null, stack: [], query: "", selected: 0, armed: -1, pointerLive: false })
 
     readonly property string current: root.topOf(root.view)
-    readonly property var items: root.itemsFor(root.current, root.view.query, root.apps, root.panels)
+    readonly property var items: root.itemsFor(root.current, root.view.query, root.apps, root.panels, Usage.db)
 
     // Menus whose rows are live data rather than MenuTree entries.
     readonly property var panels: ({
@@ -47,7 +48,7 @@ Singleton {
     // scan lands; see "Things that bit" in the README.
     readonly property var apps: DesktopEntries.applications.values
         .filter(entry => !entry.noDisplay)
-        .map(entry => ({ label: entry.name, sub: entry.genericName || entry.comment || "", entry: entry }))
+        .map(entry => ({ label: entry.name, sub: entry.genericName || entry.comment || "", entry: entry, key: "app:" + entry.id }))
         .sort((a, b) => a.label.localeCompare(b.label))
 
     function update(change) {
@@ -72,14 +73,29 @@ Singleton {
         return view.stack.length ? view.stack[view.stack.length - 1] : "";
     }
 
-    function itemsFor(id, query, apps, panels) {
+    // Search ranks by match plus frecency (MenuTree.search, Frecency.js). With
+    // no query the static menus keep their order, and Apps lists the most
+    // frecent first, then the rest by name, the way z ranks a bare `z`.
+    function itemsFor(id, query, apps, panels, usage) {
         if (id === "")
             return [];
+        const now = Usage.now();
         const pool = id === "apps" ? apps
             : panels[id] ? panels[id].items
             : id === "root" && query !== "" ? MenuTree.leaves("root", "").concat(apps)
-            : MenuTree.menus[id].items;
-        return query === "" ? pool : MenuTree.search(pool, query);
+            : MenuTree.itemsOf(id);
+        if (query !== "")
+            return MenuTree.search(pool, query, key => Frecency.bonus(usage, key, now));
+        if (id === "apps")
+            return root.byFrecency(pool, usage, now);
+        return pool;
+    }
+
+    function byFrecency(items, usage, now) {
+        return items
+            .map((item, index) => ({ item, index, score: Frecency.score(usage, item.key, now) }))
+            .sort((a, b) => (b.score - a.score) || (a.index - b.index))
+            .map(hit => hit.item);
     }
 
     function focusedScreen() {
@@ -153,6 +169,7 @@ Singleton {
     // DesktopEntry.execute() does not open a terminal for Terminal=true
     // entries, so those go through kitty by hand.
     function run(item) {
+        Usage.use(item.key);
         if (item.act)
             item.act();
         else if (item.entry && item.entry.runInTerminal)

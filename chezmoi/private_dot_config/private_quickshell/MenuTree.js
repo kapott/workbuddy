@@ -141,10 +141,18 @@ var menus = {
     }
 };
 
+// A menu's items, each with the key Usage.qml records it under.
+function itemsOf(id) {
+    return menus[id].items.map(function (item) {
+        return item.menu ? item : Object.assign({ key: id + "/" + item.label }, item);
+    });
+}
+
 // Every runnable item under a menu, labelled with its path, so typing at the
 // top level finds "Capture › Text from region" without opening Capture first.
+// The key stays the one itemsOf gives, so a use counts from either place.
 function leaves(id, path) {
-    return menus[id].items.reduce(function (found, item) {
+    return itemsOf(id).reduce(function (found, item) {
         var label = path ? path + " › " + item.label : item.label;
         if (item.menu && menus[item.menu])
             return found.concat(leaves(item.menu, label));
@@ -154,30 +162,48 @@ function leaves(id, path) {
     }, []);
 }
 
-// Case-insensitive. A substring of the label ranks first, then a substring of
-// the second column, so "flameshot" finds its key binding and "terminal" finds
-// Alacritty. Last comes the label's letters in order with gaps ("rgcc" for ROG
-// Control Center). That loose match looks at the label only. Over a long
-// second column almost any five letters occur in order somewhere. -1 is no
-// match.
-function score(item, query) {
-    var q = query.toLowerCase();
-    var label = item.label.toLowerCase();
-    var sub = (item.sub || "").toLowerCase();
-    if (label.indexOf(q) >= 0)
-        return 2000 - label.indexOf(q);
-    if (sub.indexOf(q) >= 0)
-        return 1000 - sub.indexOf(q);
-    var matched = Array.from(label).reduce(function (i, ch) {
-        return i < q.length && ch === q[i] ? i + 1 : i;
-    }, 0);
-    return matched === q.length ? 1 : -1;
+function subsequence(text, query) {
+    return Array.from(text).reduce(function (i, ch) {
+        return i < query.length && ch === query[i] ? i + 1 : i;
+    }, 0) === query.length;
 }
 
-function search(items, query) {
+// How well an item matches, in tiers 100 apart, best first:
+//   500  the name starts with the query        "fire" -> Firefox
+//   400  a word starts with it, or the initials do   "rcc" -> ROG Control Center
+//   300  the label contains it
+//   200  the second column contains it          "terminal" -> Alacritty
+//   100  the label's letters in order with gaps  "frfx" -> Firefox
+// The name is the last part of a path label, so "Capture › Text from region"
+// starts with "text". The path separator counts as a space, so "toggle bar"
+// finds "Toggle › Bar". Within a tier an earlier position wins by a few points.
+// The loose last tier looks at the label only: over a long second column
+// almost any five letters occur in order somewhere. -1 is no match.
+function score(item, query) {
+    var q = query.toLowerCase();
+    var name = item.label.toLowerCase().split(" › ").pop();
+    var label = item.label.toLowerCase().split(" › ").join(" ");
+    var words = name.split(/[\s\-_.]+/).filter(function (w) { return w; });
+    var initials = words.map(function (w) { return w[0]; }).join("");
+    var sub = (item.sub || "").toLowerCase();
+    if (name.indexOf(q) === 0)
+        return 500;
+    if (words.some(function (w) { return w.indexOf(q) === 0; }) || initials.indexOf(q) === 0)
+        return 400;
+    if (label.indexOf(q) >= 0)
+        return 300 - Math.min(9, label.indexOf(q));
+    if (sub.indexOf(q) >= 0)
+        return 200 - Math.min(9, sub.indexOf(q));
+    return subsequence(name, q) ? 100 : -1;
+}
+
+// Hits ordered by match plus frecency; bonus(key) is Frecency.bonus with the
+// db and the time already bound, so this file stays free of state.
+function search(items, query, bonus) {
     return items
-        .map(function (item) { return { item: item, score: score(item, query) }; })
-        .filter(function (hit) { return hit.score >= 0; })
-        .sort(function (a, b) { return b.score - a.score; })
+        .map(function (item, index) { return { item: item, index: index, match: score(item, query) }; })
+        .filter(function (hit) { return hit.match >= 0; })
+        .map(function (hit) { return Object.assign(hit, { total: hit.match + bonus(hit.item.key) }); })
+        .sort(function (a, b) { return (b.total - a.total) || (a.index - b.index); })
         .map(function (hit) { return hit.item; });
 }

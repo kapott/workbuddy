@@ -37,6 +37,8 @@ generated `qmldir` for nothing.
 | `Menu.qml` | the `Mod+space` menu: state and window, singleton |
 | `MenuRow.qml` | one row of the menu |
 | `MenuTree.js` | the static menus as data, and the search |
+| `Frecency.js` | z's frecency, pure functions |
+| `Usage.qml` | what the menu was used for, stored for frecency, singleton |
 | `*Panel.qml` | rows for the live menus: audio, bluetooth, network, tailscale, power, keys |
 | `Notifications.qml` | the notification server, popups list and history, singleton |
 | `NotificationPopups.qml`, `NotificationCard.qml` | the popups |
@@ -107,6 +109,21 @@ value such as volume, Escape to clear, back, close.
 | `Mod+Ctrl+a` / `b` / `w` / `t` / `e` | audio / bluetooth / network / tailscale / power |
 | `Mod+slash` | every key binding, read from the running sway config |
 | `Mod+n` / `Mod+Shift+n` / `Mod+Alt+n` | dismiss newest / dismiss all / notification history |
+
+## Search and frecency
+
+Search ranks by how well a row matches, in tiers 100 apart: the name starts with the query,
+a word or the initials do ("rcc" for ROG Control Center), the label contains it, the second
+column contains it, the label's letters appear in order. On top comes frecency, the way z
+ranks directories for `cd`: every use adds 1 to a row's rank, the score is rank times 4
+within the hour, 2 within the day, 0.5 within the week and 0.25 after, and when the ranks
+add up past 1000 they all shrink by 1% and the ones under 1 are dropped. The bonus is
+`min(150, 40 * ln(1 + score))`, so use lifts a row past a better match by one tier and never
+by two. With no query, Apps lists the most frecent first.
+
+Recorded are apps and the static menu items. Panel rows are not, because their order already
+means something (connected first, default device first). The store is
+`usage.json` under `Quickshell.statePath()`, which is per config, so a test copy keeps its own.
 
 ## Notifications
 
@@ -180,7 +197,8 @@ swaymsg 'unbindsym Mod4+Ctrl+Shift+F12'
 ```
 
 Both the test instance and the running bar receive the event, so test a target the
-running bar does not have yet, or accept both reacting.
+running bar does not have yet, or accept both reacting. The copy also draws a second bar
+under the real one; replacing `Bar {}` with `QtObject {}` in the copy's `shell.qml` avoids it.
 
 A QML error is fatal and prints the whole chain, from `shell.qml` down to the
 line that failed. `Configuration Loaded` with no `ERROR` above it means the tree
