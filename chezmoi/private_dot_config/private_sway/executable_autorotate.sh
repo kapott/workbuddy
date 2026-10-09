@@ -63,8 +63,11 @@ while :; do
         case "$line" in
             *normal*)    apply normal ;;
             *bottom-up*) apply 180 ;;
-            *left-up*)   apply 90 ;;
-            *right-up*)  apply 270 ;;
+            # sway's transform turns the opposite way to iio-sensor-proxy's
+            # naming on this panel: left-up needs 270, not 90. Verified by
+            # tilting endling both ways on 2026-10-05.
+            *left-up*)   apply 270 ;;
+            *right-up*)  apply 90 ;;
         esac
     else
         status=$?
