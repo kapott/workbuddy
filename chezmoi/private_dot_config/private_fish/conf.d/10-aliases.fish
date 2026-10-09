@@ -13,8 +13,10 @@ alias dir='dir --color=auto'
 alias vdir='vdir --color=auto'
 alias tmux='tmux -u'
 
-# Listing. eza when present, ls otherwise, same letters either way.
-if type -q eza
+# Listing. eza when present, ls otherwise, same letters either way. Claude Code
+# (CLAUDECODE set) gets plain ls, because eza colour codes and icons end up as
+# noise in its tool output.
+if not set -q CLAUDECODE; and type -q eza
     alias ls='eza -a --color=always --group-directories-first --icons=always'
     alias ll='eza -l --color=always --group-directories-first --icons=always'
     alias la='eza -al --color=always --group-directories-first --icons=always'

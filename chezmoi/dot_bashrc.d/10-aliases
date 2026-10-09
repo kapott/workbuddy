@@ -9,8 +9,9 @@ alias vdir='vdir --color=auto'
 alias tmux='tmux -u'
 
 # Listing. eza when present, ls otherwise, same letters either way. Kept in step
-# with ~/.config/fish/conf.d/10-aliases.fish.
-if command -v eza >/dev/null 2>&1; then
+# with ~/.config/fish/conf.d/10-aliases.fish. Claude Code (CLAUDECODE set) gets plain
+# ls, because eza colour codes and icons end up as noise in its tool output.
+if [ -z "${CLAUDECODE:-}" ] && command -v eza >/dev/null 2>&1; then
     alias ls='eza -a --color=always --group-directories-first --icons=always'
     alias ll='eza -l --color=always --group-directories-first --icons=always'
     alias la='eza -al --color=always --group-directories-first --icons=always'
