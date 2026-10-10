@@ -26,6 +26,12 @@ end
 # libvirt talks to the system daemon, not the per-user session one.
 set -gx LIBVIRT_DEFAULT_URI "qemu:///system"
 
+# Images for personal-tools' toolbelt, same block as ~/.bashrc.d/00-env. Set
+# only when unset, so a one-off override still wins.
+set -q TOOLBELT_FORMAT; or set -gx TOOLBELT_FORMAT toolbelt-format:latest
+set -q TOOLBELT_LINTING; or set -gx TOOLBELT_LINTING toolbelt-linting:latest
+set -q TOOLBELT_SECURITY; or set -gx TOOLBELT_SECURITY toolbelt-security:latest
+
 # Man pages in colour, same block as ~/.bashrc.d/00-env. bat highlights them
 # properly; without bat, less is told which escape sequences to use for bold and
 # underline, which is what the CachyOS zsh config does.

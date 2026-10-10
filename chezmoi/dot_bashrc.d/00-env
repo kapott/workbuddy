@@ -8,6 +8,14 @@ XDG_CONFIG_HOME=$HOME/.config
 XDG_DATA_HOME=$HOME/.local/share
 XDG_STATE_HOME=$HOME/.local/state
 
+# Images for personal-tools' toolbelt, one per kind of tooling. Agents and the
+# toolbelt CLI look the image up here. Set only when unset, so a one-off
+# override such as TOOLBELT_LINTING=toolbelt-linting:test still wins. Same
+# block in ~/.config/fish/conf.d/00-env.fish.
+export TOOLBELT_FORMAT="${TOOLBELT_FORMAT:-toolbelt-format:latest}"
+export TOOLBELT_LINTING="${TOOLBELT_LINTING:-toolbelt-linting:latest}"
+export TOOLBELT_SECURITY="${TOOLBELT_SECURITY:-toolbelt-security:latest}"
+
 # Man pages in colour. bat does it with a real syntax highlighter; without bat,
 # less can still be told which escape sequences to use for bold and underline,
 # which is the trick the CachyOS zsh config uses. Same block in
